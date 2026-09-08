@@ -1613,7 +1613,49 @@ body{
         }
       });
 
-      return warnings;
+      // รวมรายการที่ซ้ำกัน โดยถ้าเป็นโหมดเดิมและช่วงแถวเดียวกัน
+      // ให้รวมชื่อ Block เป็นกลุ่มเดียว เช่น Block A-D — แถว 34 ถึง 35
+      const grouped = new Map();
+      warnings.forEach(w => {
+        const key = `${w.oldMode}|${w.start}|${w.end}`;
+        if (!grouped.has(key)) {
+          grouped.set(key, { oldMode: w.oldMode, start: w.start, end: w.end, blocks: [] });
+        }
+        if (w.blockKey && !grouped.get(key).blocks.includes(w.blockKey)) {
+          grouped.get(key).blocks.push(w.blockKey);
+        }
+      });
+
+      return Array.from(grouped.values()).sort((a, b) => {
+        if (a.start !== b.start) return a.start - b.start;
+        if (a.end !== b.end) return a.end - b.end;
+        return String(a.blocks[0] || '').localeCompare(String(b.blocks[0] || ''));
+      });
+    }
+
+    function formatSurveyBlockGroup(blocks) {
+      if (!blocks || !blocks.length) return '';
+      const sorted = blocks.slice().sort((a,b) => String(a).localeCompare(String(b)));
+      if (sorted.length === 1) return `Block ${sorted[0]}`;
+
+      // รวม Block ที่ต่อเนื่องกัน เช่น A,B,C,D -> A-D
+      const groups = [];
+      let start = sorted[0];
+      let prev = sorted[0];
+      for (let i = 1; i <= sorted.length; i++) {
+        const cur = sorted[i];
+        const isSequential = cur && cur.charCodeAt(0) === prev.charCodeAt(0) + 1 && cur.length === 1 && prev.length === 1;
+        if (isSequential) {
+          prev = cur;
+          continue;
+        }
+        groups.push(start === prev ? start : `${start}-${prev}`);
+        if (cur) {
+          start = cur;
+          prev = cur;
+        }
+      }
+      return `Block ${groups.join(', ')}`;
     }
 
     function confirmSurveyOverlap(zone, targets, newMode) {
@@ -1623,8 +1665,8 @@ body{
       const newLabel = surveyModeMeta[newMode].label;
       const lines = warnings.map(w => {
         const oldLabel = surveyModeMeta[w.oldMode].label;
-        const blockText = w.blockKey ? ` (Block ${w.blockKey})` : '';
-        return `• พื้นที่${newLabel}ซ้ำกับพื้นที่${oldLabel}${blockText} — แถว ${w.start} ถึง ${w.end}`;
+        const blockText = formatSurveyBlockGroup(w.blocks);
+        return `• พื้นที่${newLabel}ซ้ำกับพื้นที่${oldLabel} (${blockText}) — แถว ${w.start} ถึง ${w.end}`;
       });
 
       return confirm(
