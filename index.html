@@ -552,6 +552,20 @@ body{
 }
 </style>
 
+<style id="survey-range-input-css">
+.survey-range-group{display:flex;align-items:center;gap:5px;flex:0 0 auto;}
+.survey-range-group span{font-size:12px;font-weight:700;color:#42546d;white-space:nowrap;}
+.survey-range-input{width:58px;height:36px;padding:0 7px;border:1px solid #cbd6e3;border-radius:8px;background:#f8fafc;color:#26384f;font-weight:700;text-align:center;}
+.survey-range-input:focus{outline:none;border-color:#60a5fa;box-shadow:0 0 0 3px #dbeafe;}
+.survey-range-btn{height:36px;padding:0 10px;border:1px solid #16a34a;border-radius:8px;background:#f0fdf4;color:#15803d;font-weight:800;cursor:pointer;white-space:nowrap;}
+.survey-range-btn:hover{background:#dcfce7;}
+@media(max-width:700px){
+  .survey-mode-toolbar{gap:6px!important;padding:8px!important;}
+  .survey-range-group{width:100%;order:3;}
+  .survey-range-input{height:38px;width:64px;font-size:16px;}
+  .survey-range-btn{height:38px;font-size:13px;}
+}
+</style>
 <style id="survey-toolbar-final-layout">
 .survey-mode-toolbar{
   display:flex !important;
@@ -1531,6 +1545,32 @@ body{
         : '';
     }
 
+    // อัปเดตหน้าจอแบบหน่วงเล็กน้อยและรวมการบันทึกหลายคลิกเข้าด้วยกัน
+    // ช่วยลดอาการหน่วงบนมือถือโดยไม่เปลี่ยนผลลัพธ์ของข้อมูล
+    const surveySaveQueue = { S: new Map(), MID: new Map(), N: new Map() };
+    const surveySaveTimers = { S: null, MID: null, N: null };
+    const surveyRenderTimers = { S: null, MID: null, N: null };
+
+    function queueSurveySave(zone, changes) {
+      if (!changes || !changes.length) return;
+      if (!surveySaveQueue[zone]) surveySaveQueue[zone] = new Map();
+      changes.forEach(ch => {
+        const key = `${ch.blockKey}|${ch.colNum}`;
+        surveySaveQueue[zone].set(key, ch);
+      });
+      clearTimeout(surveySaveTimers[zone]);
+      surveySaveTimers[zone] = setTimeout(() => {
+        const batch = Array.from(surveySaveQueue[zone].values());
+        surveySaveQueue[zone].clear();
+        if (batch.length) DB.saveSurvey(batch, zone);
+      }, 250);
+    }
+
+    function scheduleSurveyRender(zone) {
+      clearTimeout(surveyRenderTimers[zone]);
+      surveyRenderTimers[zone] = setTimeout(() => renderYardWindow(zone), 60);
+    }
+
     function setSurveyColumnState(zone, blockKey, colNum, mode) {
       if (!surveyColumnState[zone]) surveyColumnState[zone] = {};
       if (!surveyColumnState[zone][blockKey]) surveyColumnState[zone][blockKey] = {};
@@ -1539,8 +1579,8 @@ body{
       const newState = (surveyColumnState[zone][blockKey][colNum] === mode) ? '' : mode;
       surveyColumnState[zone][blockKey][colNum] = newState;
 
-      renderYardWindow(zone);
-      DB.saveSurvey([{zone, blockKey, colNum, mode: newState}], zone);
+      scheduleSurveyRender(zone);
+      queueSurveySave(zone, [{zone, blockKey, colNum, mode: newState}]);
     }
 
     function setSurveyZoneColumnState(zone, colNum, mode) {
@@ -1563,8 +1603,41 @@ body{
         }
       });
 
+      scheduleSurveyRender(zone);
+      queueSurveySave(zone, changes);
+    }
+
+    // เลือกช่วงแถว/คอลัมน์ทีเดียวทุกบล็อคของโซนที่กำลังแสดง
+    function applySurveyRange(zone) {
+      const config = zoneConfigs[zone];
+      const startEl = document.getElementById(`surveyRangeStart-${zone}`);
+      const endEl = document.getElementById(`surveyRangeEnd-${zone}`);
+      if (!startEl || !endEl) return;
+
+      let startCol = parseInt(startEl.value, 10);
+      let endCol = parseInt(endEl.value, 10);
+      if (!Number.isFinite(startCol)) startCol = 1;
+      if (!Number.isFinite(endCol)) endCol = startCol;
+      startCol = Math.max(1, Math.min(config.maxCols, startCol));
+      endCol = Math.max(1, Math.min(config.maxCols, endCol));
+      if (startCol > endCol) [startCol, endCol] = [endCol, startCol];
+      startEl.value = startCol;
+      endEl.value = endCol;
+
+      if (!surveyColumnState[zone]) surveyColumnState[zone] = {};
+      const changes = [];
+
+      config.blocks.forEach(block => {
+        const maxCols = block.maxColLimit || config.maxCols;
+        if (!surveyColumnState[zone][block.key]) surveyColumnState[zone][block.key] = {};
+        for (let c = startCol; c <= endCol && c <= maxCols; c++) {
+          surveyColumnState[zone][block.key][c] = selectedSurveyMode;
+          changes.push({zone, blockKey: block.key, colNum: c, mode: selectedSurveyMode});
+        }
+      });
+
       renderYardWindow(zone);
-      DB.saveSurvey(changes, zone);
+      queueSurveySave(zone, changes);
     }
 
     function getSurveyZoneColumnState(zone, colNum) {
@@ -1707,6 +1780,21 @@ body{
       modeSelect.value = selectedSurveyMode;
       modeSelect.addEventListener('change', () => updateSurveyMode(modeSelect.value, zone));
       toolbar.appendChild(modeSelect);
+
+      // กรอกช่วงแถว/คอลัมน์เพื่อเลือกทีเดียว แทนการติ๊กทีละช่องบนมือถือ
+      const rangeGroup = document.createElement('div');
+      rangeGroup.className = 'survey-range-group';
+      rangeGroup.innerHTML = `
+        <span>ตั้งแต่แถว</span>
+        <input id="surveyRangeStart-${zone}" class="survey-range-input" type="number" min="1" max="${config.maxCols}" value="1" inputmode="numeric">
+        <span>ถึง</span>
+        <input id="surveyRangeEnd-${zone}" class="survey-range-input" type="number" min="1" max="${config.maxCols}" value="${Math.min(5, config.maxCols)}" inputmode="numeric">
+        <button type="button" class="survey-range-btn">ใช้ช่วง</button>
+      `;
+      rangeGroup.querySelector('.survey-range-btn').addEventListener('click', () => {
+        applySurveyRange(zone);
+      });
+      toolbar.appendChild(rangeGroup);
 
       const help = document.createElement('span');
       help.className = 'survey-mode-help';
