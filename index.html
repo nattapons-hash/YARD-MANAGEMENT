@@ -1427,7 +1427,7 @@ body{
       },
 
       // ถ้าเปิดเป็น Apps Script Web App ให้ใช้ google.script.run
-      // ถ้าเอา HTML ไปโฮสต์ที่อื่น ให้ใช้ URL ที่กำหนดไว้ด้านบน
+      // ต้องเปิดผ่าน Google Apps Script Web App ที่ Deploy ไว้
       runServer(functionName, args = []) {
         if (this.available) {
           return new Promise((resolve, reject) => {
@@ -1438,27 +1438,11 @@ body{
           });
         }
 
-        // เรียก endpoint ของ Apps Script
-        // รองรับ GET สำหรับคำสั่งอ่าน และ POST สำหรับคำสั่งเขียน
-        if (functionName === 'getInitialData') {
-          return fetch(this.apiUrl + '?action=getInitialData', {
-            method: 'GET',
-            redirect: 'follow'
-          }).then(async r => {
-            if (!r.ok) throw new Error('HTTP ' + r.status);
-            return r.json();
-          });
-        }
-
-        return fetch(this.apiUrl, {
-          method: 'POST',
-          headers: {'Content-Type':'text/plain;charset=utf-8'},
-          body: JSON.stringify({action:functionName, args:args})
-        }).then(async r => {
-          if (!r.ok) throw new Error('HTTP ' + r.status);
-          const txt = await r.text();
-          try { return JSON.parse(txt); } catch(e) { return txt; }
-        });
+        // ต้องเปิดหน้านี้จาก Google Apps Script Web App เท่านั้น
+        // เพื่อให้ google.script.run ทำงานได้โดยตรงและไม่ติดปัญหา CORS/redirect
+        return Promise.reject(new Error(
+          'กรุณาเปิดระบบจาก URL ของ Google Apps Script Web App ไม่ใช่ไฟล์ HTML ที่เปิดจากเครื่อง'
+        ));
       },
 
       saveSurvey(changes, zone) {
