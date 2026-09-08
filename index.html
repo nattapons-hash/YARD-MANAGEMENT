@@ -1412,7 +1412,6 @@ body{
 
     const DB = {
       apiUrl: GOOGLE_APPS_SCRIPT_URL,
-      available: typeof google !== 'undefined' && google.script && google.script.run,
 
       status(zone, text, type='') {
         const el = document.getElementById(`dbStatus-${zone}`);
@@ -1422,27 +1421,52 @@ body{
       },
 
       fail(zone, err) {
-        console.error(err);
+        console.error('Google Sheets API error:', err);
         this.status(zone, '⚠ เชื่อมต่อ Google Sheets ไม่สำเร็จ', 'err');
       },
 
-      // ถ้าเปิดเป็น Apps Script Web App ให้ใช้ google.script.run
-      // ต้องเปิดผ่าน Google Apps Script Web App ที่ Deploy ไว้
-      runServer(functionName, args = []) {
-        if (this.available) {
-          return new Promise((resolve, reject) => {
-            let runner = google.script.run
-              .withSuccessHandler(resolve)
-              .withFailureHandler(reject);
-            runner[functionName](...args);
+      // หน้าเว็บอยู่บน GitHub ดังนั้นห้ามใช้ google.script.run
+      // ใช้ Web App URL ของ Google Apps Script โดยตรงแทน
+      async runServer(functionName, args = []) {
+        const payload = {
+          action: functionName,
+          args: Array.isArray(args) ? args : []
+        };
+
+        // GET สำหรับอ่านข้อมูลเริ่มต้น
+        if (functionName === 'getInitialData') {
+          const url = this.apiUrl + '?action=getInitialData&t=' + Date.now();
+          const response = await fetch(url, {
+            method: 'GET',
+            redirect: 'follow',
+            cache: 'no-store'
           });
+
+          if (!response.ok) {
+            throw new Error('Google Apps Script ตอบกลับ HTTP ' + response.status);
+          }
+
+          const data = await response.json();
+          if (!data || data.ok !== true) {
+            throw new Error(data && data.error ? data.error : 'API ไม่ส่งข้อมูลกลับมา');
+          }
+
+          return data.result || {};
         }
 
-        // ต้องเปิดหน้านี้จาก Google Apps Script Web App เท่านั้น
-        // เพื่อให้ google.script.run ทำงานได้โดยตรงและไม่ติดปัญหา CORS/redirect
-        return Promise.reject(new Error(
-          'กรุณาเปิดระบบจาก URL ของ Google Apps Script Web App ไม่ใช่ไฟล์ HTML ที่เปิดจากเครื่อง'
-        ));
+        // POST แบบ text/plain เพื่อลดปัญหา CORS preflight
+        // ไม่ต้องอ่าน response เพราะการบันทึกถือว่าสำเร็จเมื่อ request ถูกส่งออกไป
+        await fetch(this.apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8'
+          },
+          body: JSON.stringify(payload),
+          redirect: 'follow',
+          mode: 'no-cors'
+        });
+
+        return true;
       },
 
       saveSurvey(changes, zone) {
@@ -1471,15 +1495,17 @@ body{
         this.runServer('replaceBookings', [records])
           .then(() => {
             ['S','MID','N'].forEach(z => {
-              if (document.getElementById(`dbStatus-${z}`))
+              if (document.getElementById(`dbStatus-${z}`)) {
                 this.status(z, '☁ บันทึกแล้ว', 'ok');
+              }
             });
           })
           .catch(err => {
             console.error(err);
             ['S','MID','N'].forEach(z => {
-              if (document.getElementById(`dbStatus-${z}`))
+              if (document.getElementById(`dbStatus-${z}`)) {
                 this.status(z, '⚠ บันทึกเรือไม่สำเร็จ', 'err');
+              }
             });
           });
       },
@@ -2201,12 +2227,6 @@ body{
 
     async function initFromGoogleSheet() {
       try {
-        if (!DB.available) {
-          console.warn('เปิดไฟล์แบบ local: ไม่มี google.script.run');
-          renderAllYardWindows();
-          return;
-        }
-
         const data = await DB.loadAll();
 
         // โหลดข้อมูลสำรวจ
