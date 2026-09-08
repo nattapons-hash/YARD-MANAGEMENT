@@ -551,6 +551,49 @@ body{
   .survey-mode-help{display:none !important;}
 }
 </style>
+
+<style id="survey-toolbar-final-layout">
+.survey-mode-toolbar{
+  display:flex !important;
+  align-items:center !important;
+  gap:10px !important;
+  flex-wrap:nowrap !important;
+}
+.survey-toolbar-spacer{
+  flex:1 1 auto !important;
+  min-width:10px !important;
+}
+.survey-mode-help{
+  flex:0 1 auto !important;
+}
+.db-status{
+  flex:0 0 auto !important;
+  white-space:nowrap !important;
+}
+.survey-clear-btn{
+  flex:0 0 auto !important;
+  white-space:nowrap !important;
+}
+@media (max-width:700px){
+  .survey-mode-toolbar{
+    flex-wrap:wrap !important;
+  }
+  .survey-toolbar-spacer{
+    display:none !important;
+  }
+  .db-status{
+    order:5 !important;
+  }
+  .survey-clear-btn{
+    order:6 !important;
+  }
+  .survey-clear-all-btn{
+    order:7 !important;
+    margin-left:0 !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -1643,12 +1686,6 @@ body{
       modeLabel.innerText = 'โหมดสำรวจ:';
       toolbar.appendChild(modeLabel);
 
-      const dbStatus = document.createElement('span');
-      dbStatus.className = 'db-status';
-      dbStatus.id = `dbStatus-${zone}`;
-      dbStatus.innerText = '☁ Google Sheets';
-      toolbar.appendChild(dbStatus);
-
       const modeSelect = document.createElement('select');
       modeSelect.className = 'survey-mode-select';
       modeSelect.innerHTML = `
@@ -1661,13 +1698,6 @@ body{
       modeSelect.addEventListener('change', () => updateSurveyMode(modeSelect.value, zone));
       toolbar.appendChild(modeSelect);
 
-      const clearBtn = document.createElement('button');
-      clearBtn.className = 'survey-clear-btn';
-      clearBtn.innerText = `เคลียร์ ${surveyModeMeta[selectedSurveyMode].label}`;
-      clearBtn.title = `ล้างเครื่องหมาย ${surveyModeMeta[selectedSurveyMode].label} ของโซนนี้`;
-      clearBtn.addEventListener('click', () => clearSurveyMode(zone));
-      toolbar.appendChild(clearBtn);
-
       const help = document.createElement('span');
       help.className = 'survey-mode-help';
       help.innerText = selectedSurveyMode === 'empty'
@@ -1675,11 +1705,36 @@ body{
         : 'ติ๊กหัวคอลัมน์ = ใส่เครื่องหมายของโหมดที่เลือก';
       toolbar.appendChild(help);
 
+      const toolbarSpacer = document.createElement('span');
+      toolbarSpacer.className = 'survey-toolbar-spacer';
+      toolbar.appendChild(toolbarSpacer);
+
+      const dbStatus = document.createElement('span');
+      dbStatus.className = 'db-status';
+      dbStatus.id = `dbStatus-${zone}`;
+      dbStatus.innerText = '☁ กำลังตรวจสอบ Google Sheets';
+      toolbar.appendChild(dbStatus);
+
+      const clearBtn = document.createElement('button');
+      clearBtn.className = 'survey-clear-btn';
+      clearBtn.innerText = `เคลียร์ ${surveyModeMeta[selectedSurveyMode].label}`;
+      clearBtn.title = `ล้างเครื่องหมาย ${surveyModeMeta[selectedSurveyMode].label} ของโซนนี้`;
+      clearBtn.addEventListener('click', () => {
+        if (confirm(`ยืนยันการเคลียร์ "${surveyModeMeta[selectedSurveyMode].label}" ของโซน ${zone} หรือไม่?`)) {
+          clearSurveyMode(zone);
+        }
+      });
+      toolbar.appendChild(clearBtn);
+
       const clearAllBtn = document.createElement('button');
       clearAllBtn.className = 'survey-clear-btn survey-clear-all-btn';
       clearAllBtn.innerText = 'เคลียร์ทั้งหมด';
       clearAllBtn.title = `ล้างข้อมูลสำรวจทั้งหมดของโซน ${zone} ที่กำลังเปิดอยู่`;
-      clearAllBtn.addEventListener('click', () => clearAllSurveyZone(zone));
+      clearAllBtn.addEventListener('click', () => {
+        if (confirm(`ยืนยันการเคลียร์ข้อมูลสำรวจทั้งหมดของโซน ${zone} หรือไม่?\n\nข้อมูลทุกโหมดของโซนนี้จะถูกล้าง`)) {
+          clearAllSurveyZone(zone);
+        }
+      });
       toolbar.appendChild(clearAllBtn);
 
       wrapper.appendChild(toolbar);
