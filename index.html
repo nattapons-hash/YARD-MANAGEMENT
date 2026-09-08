@@ -1571,12 +1571,77 @@ body{
       surveyRenderTimers[zone] = setTimeout(() => renderYardWindow(zone), 60);
     }
 
+    // ตรวจสอบพื้นที่ซ้ำก่อนเปลี่ยนโหมด เพื่อป้องกันการบันทึกทับโดยไม่ตั้งใจ
+    function getSurveyOverlapWarnings(zone, targets, newMode) {
+      if (!newMode) return [];
+
+      const byMode = {};
+      (targets || []).forEach(target => {
+        const oldMode = getSurveyColumnState(zone, target.blockKey, target.colNum);
+        if (!oldMode || oldMode === newMode) return;
+
+        const key = `${oldMode}|${target.blockKey}`;
+        if (!byMode[key]) byMode[key] = { mode: oldMode, blockKey: target.blockKey, cols: [] };
+        byMode[key].cols.push(target.colNum);
+      });
+
+      const warnings = [];
+      Object.values(byMode).forEach(item => {
+        const cols = Array.from(new Set(item.cols)).sort((a,b) => a-b);
+        if (!cols.length) return;
+
+        let start = cols[0];
+        let prev = cols[0];
+        for (let i = 1; i <= cols.length; i++) {
+          const current = cols[i];
+          if (current === prev + 1) {
+            prev = current;
+            continue;
+          }
+
+          warnings.push({
+            oldMode: item.mode,
+            blockKey: item.blockKey,
+            start,
+            end: prev
+          });
+
+          if (i < cols.length) {
+            start = current;
+            prev = current;
+          }
+        }
+      });
+
+      return warnings;
+    }
+
+    function confirmSurveyOverlap(zone, targets, newMode) {
+      const warnings = getSurveyOverlapWarnings(zone, targets, newMode);
+      if (!warnings.length) return true;
+
+      const newLabel = surveyModeMeta[newMode].label;
+      const lines = warnings.map(w => {
+        const oldLabel = surveyModeMeta[w.oldMode].label;
+        const blockText = w.blockKey ? ` (Block ${w.blockKey})` : '';
+        return `• พื้นที่${newLabel}ซ้ำกับพื้นที่${oldLabel}${blockText} — แถว ${w.start} ถึง ${w.end}`;
+      });
+
+      return confirm(
+        `⚠️ พบพื้นที่สำรวจซ้ำกัน\n\n${lines.join('\n')}\n\nต้องการยืนยันให้บันทึก ${newLabel} ทับพื้นที่เดิมหรือไม่?`
+      );
+    }
+
     function setSurveyColumnState(zone, blockKey, colNum, mode) {
       if (!surveyColumnState[zone]) surveyColumnState[zone] = {};
       if (!surveyColumnState[zone][blockKey]) surveyColumnState[zone][blockKey] = {};
 
       // ถ้าติ๊กซ้ำในโหมดเดิม = ยกเลิก
       const newState = (surveyColumnState[zone][blockKey][colNum] === mode) ? '' : mode;
+      const targets = [{ zone, blockKey, colNum }];
+
+      if (!confirmSurveyOverlap(zone, targets, newState)) return;
+
       surveyColumnState[zone][blockKey][colNum] = newState;
 
       scheduleSurveyRender(zone);
@@ -1593,14 +1658,22 @@ body{
         .every(block => getSurveyColumnState(zone, block.key, colNum) === mode);
 
       const changes = [];
+      const newState = allSame ? '' : mode;
+      const targets = [];
+
       config.blocks.forEach(block => {
         const maxCols = block.maxColLimit || config.maxCols;
         if (colNum <= maxCols) {
-          if (!surveyColumnState[zone][block.key]) surveyColumnState[zone][block.key] = {};
-          const newState = allSame ? '' : mode;
-          surveyColumnState[zone][block.key][colNum] = newState;
-          changes.push({zone, blockKey: block.key, colNum, mode: newState});
+          targets.push({ zone, blockKey: block.key, colNum });
         }
+      });
+
+      if (!confirmSurveyOverlap(zone, targets, newState)) return;
+
+      targets.forEach(target => {
+        if (!surveyColumnState[zone][target.blockKey]) surveyColumnState[zone][target.blockKey] = {};
+        surveyColumnState[zone][target.blockKey][target.colNum] = newState;
+        changes.push({zone, blockKey: target.blockKey, colNum: target.colNum, mode: newState});
       });
 
       scheduleSurveyRender(zone);
@@ -1626,14 +1699,21 @@ body{
 
       if (!surveyColumnState[zone]) surveyColumnState[zone] = {};
       const changes = [];
+      const targets = [];
 
       config.blocks.forEach(block => {
         const maxCols = block.maxColLimit || config.maxCols;
-        if (!surveyColumnState[zone][block.key]) surveyColumnState[zone][block.key] = {};
         for (let c = startCol; c <= endCol && c <= maxCols; c++) {
-          surveyColumnState[zone][block.key][c] = selectedSurveyMode;
-          changes.push({zone, blockKey: block.key, colNum: c, mode: selectedSurveyMode});
+          targets.push({zone, blockKey: block.key, colNum: c});
         }
+      });
+
+      if (!confirmSurveyOverlap(zone, targets, selectedSurveyMode)) return;
+
+      targets.forEach(target => {
+        if (!surveyColumnState[zone][target.blockKey]) surveyColumnState[zone][target.blockKey] = {};
+        surveyColumnState[zone][target.blockKey][target.colNum] = selectedSurveyMode;
+        changes.push({zone, blockKey: target.blockKey, colNum: target.colNum, mode: selectedSurveyMode});
       });
 
       renderYardWindow(zone);
