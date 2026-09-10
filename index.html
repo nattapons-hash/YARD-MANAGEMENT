@@ -1727,7 +1727,8 @@ body{
     }
 
     // อัปเดตหน้าจอแบบหน่วงเล็กน้อยและรวมการบันทึกหลายคลิกเข้าด้วยกัน
-    // ช่วยลดอาการหน่วงบนมือถือโดยไม่เปลี่ยนผลลัพธ์ของข้อมูล
+    // ช่วยลดอาการหน่วงบนมือถือ โดยรวมคลิกต่อเนื่องเป็นชุดเดียวก่อนส่ง GAS
+    // GAS จะบีบช่วงคอลัมน์ต่อเนื่องเป็น Range ใน YardSurvey
     const surveySaveQueue = { S: new Map(), MID: new Map(), N: new Map() };
     const surveySaveTimers = { S: null, MID: null, N: null };
     const surveySaveChains = {
@@ -1751,7 +1752,7 @@ body{
       clearTimeout(surveySaveTimers[zone]);
       surveySaveTimers[zone] = setTimeout(() => {
         flushSurveyZoneSave(zone);
-      }, 120);
+      }, 250);
     }
 
     function flushSurveyZoneSave(zone) {
