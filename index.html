@@ -681,8 +681,12 @@ body{
 .mobile-survey-title span{font-size:11px;color:#64748b;line-height:14px;}
 .mobile-section-label{font-size:12px;font-weight:800;color:#334155;margin-bottom:4px;line-height:16px;}
 .mobile-zone-group,.mobile-mode-group,.mobile-keypad-card{background:#fff;border:1px solid #dbe3ec;border-radius:10px;padding:7px;margin-bottom:6px;box-shadow:0 2px 7px rgba(31,48,71,.05);}
-.mobile-zone-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
+.mobile-zone-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;}
 .mobile-zone-btn{min-height:38px;border:1px solid #cbd5e1;border-radius:7px;background:#f8fafc;color:#334155;font-size:12px;font-weight:800;cursor:pointer;padding:3px 2px;}
+.mobile-zone-btn:disabled{opacity:.75;cursor:wait;transform:none !important;}
+.mobile-refresh-btn{background:#f0fdf4;border-color:#86efac;color:#15803d;}
+.mobile-refresh-btn small{color:#15803d;}
+.mobile-refresh-btn.loading{background:#ecfdf5;border-color:#4ade80;}
 .mobile-zone-btn small{display:block;font-size:9px;margin-top:0;color:#64748b;font-weight:700;line-height:11px;}
 .mobile-zone-btn.active{background:#dbeafe;border-color:#60a5fa;color:#1d4ed8;box-shadow:0 1px 4px rgba(37,99,235,.12);}
 .mobile-mode-select{width:100%;height:36px;border:1px solid #cbd5e1;border-radius:7px;background:#fff;color:#334155;font-size:14px;font-weight:700;padding:0 8px;}
@@ -716,6 +720,49 @@ body{
 }
 </style>
 
+
+<style id="mobile-refresh-button-style">
+.mobile-refresh-btn{
+  appearance:none;
+  border:1px solid #93c5fd;
+  background:#eff6ff;
+  color:#1d4ed8;
+  border-radius:9px;
+  min-height:38px;
+  padding:0 10px;
+  font-size:13px;
+  font-weight:800;
+  cursor:pointer;
+  white-space:nowrap;
+  box-sizing:border-box;
+}
+.mobile-refresh-btn:active{transform:scale(.97);}
+.mobile-refresh-btn:disabled{opacity:.65;cursor:wait;}
+@media(max-width:430px){
+  .mobile-refresh-btn{
+    min-height:34px;
+    padding:0 8px;
+    font-size:12px;
+  }
+}
+</style>
+
+<style id="top-refresh-button-style">
+.top-refresh-btn{
+  background:#f0fdf4 !important;
+  border-color:#86efac !important;
+  color:#15803d !important;
+}
+.top-refresh-btn:hover{
+  background:#dcfce7 !important;
+  color:#166534 !important;
+}
+.top-refresh-btn:disabled{
+  opacity:.7;
+  cursor:wait;
+}
+</style>
+
 </head>
 <body>
 
@@ -723,6 +770,7 @@ body{
     <div class="header-top">
       <h2>🚢 Yard Plan Survey - สำรวจแถวว่าง</h2>
       <div class="desktop-launcher">
+        <button class="window-launch-btn top-refresh-btn" id="mobileRefreshBtn" onclick="refreshMobileData()">🔄 รีเฟรช</button>
         <button class="window-launch-btn active" id="launch-btn-S" onclick="switchWindow('S')">📂 ฝั่งใต้(S)</button>
         <button class="window-launch-btn" id="launch-btn-MID" onclick="switchWindow('MID')">📂 หน้าตึก</button>
         <button class="window-launch-btn" id="launch-btn-N" onclick="switchWindow('N')">📂 ฝั่งเหนือ(N)</button>
@@ -2580,6 +2628,27 @@ body{
 
       const zoneButtons = document.createElement('div');
       zoneButtons.className = 'mobile-zone-buttons';
+
+      // ปุ่มรีเฟรชข้อมูล — อยู่เป็นปุ่มแรกก่อนปุ่มเลือกโซนฝั่งใต้
+      const refreshBtn = document.createElement('button');
+      refreshBtn.type = 'button';
+      refreshBtn.className = 'mobile-zone-btn mobile-refresh-btn';
+      refreshBtn.innerHTML = '🔄<small>รีเฟรชข้อมูล</small>';
+      refreshBtn.title = 'โหลดข้อมูลล่าสุดจาก Google Sheets';
+      refreshBtn.addEventListener('click', async () => {
+        if (refreshBtn.disabled) return;
+        refreshBtn.disabled = true;
+        refreshBtn.classList.add('loading');
+        refreshBtn.innerHTML = '⟳<small>กำลังโหลด...</small>';
+        try {
+          await initFromGoogleSheet();
+        } finally {
+          refreshBtn.disabled = false;
+          refreshBtn.classList.remove('loading');
+        }
+      });
+      zoneButtons.appendChild(refreshBtn);
+
       [
         ['S', 'ฝั่งใต้', 'S'],
         ['MID', 'หน้าตึก', 'MID'],
@@ -2716,6 +2785,43 @@ body{
     renderMobileSurveyPage();
     initFromGoogleSheet();
   </script>
+
+<script id="mobile-refresh-function">
+async function refreshMobileData(){
+  const btn = document.getElementById('mobileRefreshBtn');
+  if (!btn) return;
+  const oldText = btn.innerText;
+  btn.disabled = true;
+  btn.innerText = '⏳ กำลังโหลด';
+  try {
+    if (typeof DB !== 'undefined') {
+      if (typeof DB.loadInitialData === 'function') {
+        await DB.loadInitialData();
+      } else if (typeof DB.getInitialData === 'function') {
+        await DB.getInitialData();
+      } else if (typeof loadInitialData === 'function') {
+        await loadInitialData();
+      }
+    } else if (typeof loadInitialData === 'function') {
+      await loadInitialData();
+    }
+
+    if (typeof renderMobileColumnButtons === 'function') {
+      renderMobileColumnButtons();
+    }
+    if (typeof renderAllYardWindows === 'function') {
+      renderAllYardWindows();
+    }
+  } catch (err) {
+    console.error('Mobile refresh error:', err);
+    alert('รีเฟรชข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
+  } finally {
+    btn.disabled = false;
+    btn.innerText = oldText;
+  }
+}
+</script>
+
 </body>
 </html>
 
