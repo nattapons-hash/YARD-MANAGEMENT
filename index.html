@@ -475,6 +475,73 @@ header, .header, .topbar{
 </style>
 
 
+<style id="zone-column-keypad">
+/* แผงปุ่มเลือกคอลัมน์ด้านขวา: 1-65 แบบเครื่องคิดเลข */
+.zone-survey-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 330px;
+  gap:14px;
+  align-items:start;
+  width:100%;
+}
+.zone-blocks-area{
+  min-width:0;
+}
+.zone-column-keypad{
+  position:sticky;
+  top:8px;
+  background:#fff;
+  border:1px solid #cbd5e1;
+  border-radius:12px;
+  padding:12px;
+  box-shadow:0 5px 18px rgba(31,48,71,.06);
+  box-sizing:border-box;
+}
+.zone-column-keypad-title{
+  font-size:12px;
+  font-weight:800;
+  color:#334155;
+  margin-bottom:9px;
+}
+.zone-column-keypad-grid{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:7px;
+}
+.zone-column-key-btn{
+  height:42px;
+  min-width:0;
+  border:1px solid #cbd5e1;
+  border-radius:8px;
+  background:#f8fafc;
+  color:#334155;
+  font-size:14px;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 2px 4px rgba(31,48,71,.10);
+  transition:transform .1s ease, box-shadow .1s ease, background .1s ease;
+}
+.zone-column-key-btn:hover{
+  transform:translateY(-1px);
+  box-shadow:0 4px 8px rgba(31,48,71,.14);
+}
+.zone-column-key-btn:active{transform:translateY(0);}
+.zone-column-key-btn.active-empty{background:#dcfce7;border-color:#86efac;color:#15803d;}
+.zone-column-key-btn.active-out{background:#dbeafe;border-color:#93c5fd;color:#1d4ed8;}
+.zone-column-key-btn.active-in{background:#ffedd5;border-color:#fdba74;color:#c2410c;}
+.zone-column-key-btn.active-mmt{background:#f3e8ff;border-color:#d8b4fe;color:#7e22ce;}
+.zone-column-key-btn.active-mixed{background:#e2e8f0;border-color:#94a3b8;color:#334155;}
+@media(max-width:1100px){
+  .zone-survey-layout{grid-template-columns:minmax(0,1fr) 285px;}
+  .zone-column-keypad-grid{gap:5px;}
+  .zone-column-key-btn{height:38px;font-size:13px;}
+}
+@media(max-width:850px){
+  .zone-survey-layout{grid-template-columns:1fr;}
+  .zone-column-keypad{position:static;order:-1;}
+  .zone-column-keypad-grid{grid-template-columns:repeat(5,minmax(0,1fr));}
+}
+</style>
 <style id="wide-window-layout">
 /* ขยายหน้าต่างแปลนให้ใช้พื้นที่จอเต็มขึ้น */
 .zone-window{
@@ -608,6 +675,118 @@ body{
 }
 </style>
 
+<style id="survey-column-number-buttons">
+.zone-survey-header-title::after{content:"  •  กดตัวเลขคอลัมน์ที่ต้องการ";color:#64748b;font-weight:600;}
+.zone-master-col-row{gap:6px!important;padding-left:18px!important;align-items:center!important;}
+.zone-master-col{width:32px!important;min-width:32px!important;height:34px!important;display:flex!important;align-items:center!important;justify-content:center!important;}
+.zone-master-col-btn{width:32px!important;height:32px!important;padding:0!important;border:1px solid #cbd5e1!important;border-radius:7px!important;background:#f8fafc!important;color:#334155!important;font-size:13px!important;font-weight:800!important;line-height:1!important;cursor:pointer!important;box-shadow:0 1px 3px rgba(31,48,71,.10)!important;}
+.zone-master-col-btn:hover{background:#eaf2ff!important;border-color:#60a5fa!important;color:#1d4ed8!important;transform:translateY(-1px);}
+.zone-master-col.master-survey-empty .zone-master-col-btn{background:#dcfce7!important;border-color:#86efac!important;color:#15803d!important;}
+.zone-master-col.master-survey-out .zone-master-col-btn{background:#dbeafe!important;border-color:#93c5fd!important;color:#1d4ed8!important;}
+.zone-master-col.master-survey-in .zone-master-col-btn{background:#ffedd5!important;border-color:#fdba74!important;color:#c2410c!important;}
+.zone-master-col.master-survey-mmt .zone-master-col-btn{background:#f3e8ff!important;border-color:#d8b4fe!important;color:#7e22ce!important;}
+.col-header{width:24px!important;height:28px!important;gap:0!important;}
+.col-number{width:24px!important;height:26px!important;padding:0!important;border:1px solid #d7e0ea!important;border-radius:5px!important;background:#f8fafc!important;color:#52657d!important;font-size:10px!important;font-weight:800!important;cursor:pointer!important;display:flex!important;align-items:center!important;justify-content:center!important;}
+.col-number:hover{background:#eaf2ff!important;border-color:#93c5fd!important;color:#2563eb!important;}
+.col-header.col-survey-empty .col-number{background:#dcfce7!important;border-color:#86efac!important;color:#15803d!important;}
+.col-header.col-survey-out .col-number{background:#dbeafe!important;border-color:#93c5fd!important;color:#1d4ed8!important;}
+.col-header.col-survey-in .col-number{background:#ffedd5!important;border-color:#fdba74!important;color:#c2410c!important;}
+.col-header.col-survey-mmt .col-number{background:#f3e8ff!important;border-color:#d8b4fe!important;color:#7e22ce!important;}
+@media(max-width:700px){.zone-master-col-row{gap:5px!important}.zone-master-col,.zone-master-col-btn{width:34px!important;min-width:34px!important}.zone-master-col-btn{height:34px!important;font-size:14px!important}.col-header{width:26px!important}.col-number{width:26px!important;height:28px!important;font-size:11px!important}}
+</style>
+
+<style id="final-block-checkbox-layout">
+/* ===== BLOCK HEADER: คืน checkbox ขนาดเดิม ===== */
+.col-header{
+  width:18px !important;
+  min-width:18px !important;
+  height:30px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:2px !important;
+  cursor:default !important;
+}
+.col-header .col-check{
+  width:12px !important;
+  height:12px !important;
+  margin:0 !important;
+  padding:0 !important;
+  cursor:pointer !important;
+  accent-color:#2563eb !important;
+}
+.col-header .col-number{
+  width:auto !important;
+  min-width:0 !important;
+  height:11px !important;
+  padding:0 !important;
+  margin:0 !important;
+  border:0 !important;
+  border-radius:0 !important;
+  background:transparent !important;
+  box-shadow:none !important;
+  color:#52657d !important;
+  font-size:8px !important;
+  font-weight:700 !important;
+  line-height:11px !important;
+  display:block !important;
+  cursor:default !important;
+}
+.col-header.col-survey-empty .col-number{background:transparent !important;border:0 !important;color:#15803d !important;}
+.col-header.col-survey-out .col-number{background:transparent !important;border:0 !important;color:#1d4ed8 !important;}
+.col-header.col-survey-in .col-number{background:transparent !important;border:0 !important;color:#c2410c !important;}
+.col-header.col-survey-mmt .col-number{background:transparent !important;border:0 !important;color:#7e22ce !important;}
+
+/* ===== ปุ่มตัวเลขด้านข้าง: 1-65 แบบปุ่มใหญ่ 5 คอลัมน์ ===== */
+/* ปุ่มอยู่ฝั่งซ้าย / แปลน BLOCK และ checkbox เดิมอยู่ฝั่งขวา */
+.zone-survey-layout{
+  display:grid !important;
+  grid-template-columns:330px minmax(0,1fr) !important;
+  gap:14px !important;
+  align-items:start !important;
+}
+.zone-column-keypad{
+  grid-column:1 !important;
+  grid-row:1 !important;
+}
+.zone-blocks-area{
+  grid-column:2 !important;
+  grid-row:1 !important;
+  min-width:0 !important;
+}
+.zone-column-keypad-grid{
+  display:grid !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  gap:7px !important;
+}
+.zone-column-key-btn{
+  height:42px !important;
+  min-width:0 !important;
+  border:1px solid #cbd5e1 !important;
+  border-radius:8px !important;
+  background:#f8fafc !important;
+  color:#334155 !important;
+  font-size:14px !important;
+  font-weight:800 !important;
+  cursor:pointer !important;
+  box-shadow:0 2px 4px rgba(31,48,71,.10) !important;
+}
+.zone-column-key-btn.active-empty{background:#dcfce7 !important;border-color:#86efac !important;color:#15803d !important;}
+.zone-column-key-btn.active-out{background:#dbeafe !important;border-color:#93c5fd !important;color:#1d4ed8 !important;}
+.zone-column-key-btn.active-in{background:#ffedd5 !important;border-color:#fdba74 !important;color:#c2410c !important;}
+.zone-column-key-btn.active-mmt{background:#f3e8ff !important;border-color:#d8b4fe !important;color:#7e22ce !important;}
+.zone-column-key-btn.active-mixed{background:#e2e8f0 !important;border-color:#94a3b8 !important;color:#334155 !important;}
+@media(max-width:1100px){
+  .zone-survey-layout{grid-template-columns:minmax(0,1fr) 285px !important;}
+  .zone-column-key-btn{height:38px !important;font-size:13px !important;}
+}
+@media(max-width:850px){
+  .zone-survey-layout{grid-template-columns:1fr !important;}
+  .zone-column-keypad{position:static !important;grid-column:1 !important;grid-row:1 !important;}
+  .zone-blocks-area{grid-column:1 !important;grid-row:2 !important;}
+}
+</style>
 </head>
 <body>
 
@@ -1921,8 +2100,8 @@ body{
       const help = document.createElement('span');
       help.className = 'survey-mode-help';
       help.innerText = selectedSurveyMode === 'empty'
-        ? 'ติ๊กหัวคอลัมน์ = คอลัมน์ว่าง และระบบจะนับความจุรถ'
-        : 'ติ๊กหัวคอลัมน์ = ใส่เครื่องหมายของโหมดที่เลือก';
+        ? 'กดเลขคอลัมน์ = คอลัมน์ว่าง และระบบจะนับความจุรถ'
+        : 'กดเลขคอลัมน์ = ใส่เครื่องหมายของโหมดที่เลือก';
       toolbar.appendChild(help);
 
       const toolbarSpacer = document.createElement('span');
@@ -1969,45 +2148,48 @@ body{
         `แถวว่างใส่รถได้รวม ${getSurveyEmptyCapacity(zone)} คัน`;
       wrapper.appendChild(zoneSurveySummary);
 
-      // แถวติ๊กด้านบนสุดของโซน: 1 ครั้งเลือกคอลัมน์นั้นทุกบล็อค
-      const zoneSurveyHeader = document.createElement('div');
-      zoneSurveyHeader.className = 'zone-survey-header';
+      // แผงหลักของแต่ละโซน: แปลนอยู่ซ้าย / ปุ่มเลือกคอลัมน์ 1-65 อยู่ขวา
+      const zoneSurveyLayout = document.createElement('div');
+      zoneSurveyLayout.className = 'zone-survey-layout';
 
-      const zoneTitle = document.createElement('div');
-      zoneTitle.className = 'zone-survey-header-title';
-      zoneTitle.innerText =
-        `☑ สำรวจคอลัมน์ ${surveyModeMeta[selectedSurveyMode].label} รวมโซน ${zone} — ติ๊กเพื่อเลือกทุกบล็อค`;
-      zoneSurveyHeader.appendChild(zoneTitle);
+      const blocksArea = document.createElement('div');
+      blocksArea.className = 'zone-blocks-area';
 
-      const masterRow = document.createElement('div');
-      masterRow.className = 'zone-master-col-row';
+      const keypad = document.createElement('aside');
+      keypad.className = 'zone-column-keypad';
+
+      const keypadTitle = document.createElement('div');
+      keypadTitle.className = 'zone-column-keypad-title';
+      keypadTitle.innerText = `เลือกคอลัมน์ ${zone} (กดตัวเลขเพื่อเลือกทั้งโซน)`;
+      keypad.appendChild(keypadTitle);
+
+      const keypadGrid = document.createElement('div');
+      keypadGrid.className = 'zone-column-keypad-grid';
 
       for (let c = 1; c <= config.maxCols; c++) {
         const state = getSurveyZoneColumnState(zone, c);
-        const masterCol = document.createElement('div');
-
-        const stateClass = state.mode && state.mode !== 'mixed'
-          ? surveyModeMeta[state.mode].masterCss
-          : '';
-        masterCol.className = 'zone-master-col' + (stateClass ? ` ${stateClass}` : '');
-
-        const check = document.createElement('input');
-        check.type = 'checkbox';
-        check.checked = state.checked;
-        check.indeterminate = state.indeterminate || (state.selected === state.applicable && state.mode !== selectedSurveyMode && state.selected > 0);
-        check.title = `ติ๊ก = ${surveyModeMeta[selectedSurveyMode].label} คอลัมน์ ${c} ทุกบล็อค`;
-        check.addEventListener('click', e => e.stopPropagation());
-        check.addEventListener('change', () => setSurveyZoneColumnState(zone, c, selectedSurveyMode));
-
-        const num = document.createElement('span');
-        num.innerText = c;
-        masterCol.appendChild(check);
-        masterCol.appendChild(num);
-        masterRow.appendChild(masterCol);
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'zone-column-key-btn';
+        if (state.mode === 'empty') btn.classList.add('active-empty');
+        else if (state.mode === 'out') btn.classList.add('active-out');
+        else if (state.mode === 'in') btn.classList.add('active-in');
+        else if (state.mode === 'mmt') btn.classList.add('active-mmt');
+        else if (state.mode === 'mixed') btn.classList.add('active-mixed');
+        btn.innerText = c;
+        btn.title = `กดเลข ${c} = ${surveyModeMeta[selectedSurveyMode].label} คอลัมน์ ${c} ทุกบล็อคของโซน ${zone}`;
+        btn.addEventListener('click', e => {
+          e.stopPropagation();
+          setSurveyZoneColumnState(zone, c, selectedSurveyMode);
+        });
+        keypadGrid.appendChild(btn);
       }
 
-      zoneSurveyHeader.appendChild(masterRow);
-      wrapper.appendChild(zoneSurveyHeader);
+      keypad.appendChild(keypadGrid);
+      // ปุ่มตัวเลขอยู่ซ้าย / BLOCK อยู่ขวา
+      zoneSurveyLayout.appendChild(keypad);
+      zoneSurveyLayout.appendChild(blocksArea);
+      wrapper.appendChild(zoneSurveyLayout);
 
       config.blocks.forEach(block => {
         let rowsCount = block.rows;
@@ -2032,17 +2214,24 @@ body{
           const colHead = document.createElement('div');
           colHead.className = 'col-header' + (colMeta ? ` ${colMeta.headerCss}` : '');
 
+          // ช่องติ๊กของแต่ละ BLOCK: คงรูปแบบเดิม ไม่ขยาย
           const check = document.createElement('input');
           check.type = 'checkbox';
           check.className = 'col-check';
-          check.checked = colState === selectedSurveyMode;
-          check.title = `ติ๊ก = ${surveyModeMeta[selectedSurveyMode].label} คอลัมน์ ${c}`;
+          check.checked = !!colState;
+          check.title = `เลือกคอลัมน์ ${c} เฉพาะ BLOCK ${block.key}`;
           check.addEventListener('click', e => e.stopPropagation());
-          check.addEventListener('change', () => setSurveyColumnState(zone, block.key, c, selectedSurveyMode));
+          check.addEventListener('change', e => {
+            e.stopPropagation();
+            setSurveyColumnState(zone, block.key, c, selectedSurveyMode);
+          });
 
-          const num = document.createElement('span');
+          // เลขคอลัมน์เป็นข้อความเดิม ไม่ใช่ปุ่ม
+          const num = document.createElement('div');
           num.className = 'col-number';
           num.innerText = c;
+          num.title = `คอลัมน์ ${c}`;
+
           colHead.appendChild(check);
           colHead.appendChild(num);
           colHeaderRow.appendChild(colHead);
@@ -2117,7 +2306,7 @@ body{
           blockDiv.appendChild(gridRow);
         }
 
-        wrapper.appendChild(blockDiv);
+        blocksArea.appendChild(blockDiv);
       });
     }
 
