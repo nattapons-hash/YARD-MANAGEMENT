@@ -1730,21 +1730,47 @@ body{
     // ช่วยลดอาการหน่วงบนมือถือโดยไม่เปลี่ยนผลลัพธ์ของข้อมูล
     const surveySaveQueue = { S: new Map(), MID: new Map(), N: new Map() };
     const surveySaveTimers = { S: null, MID: null, N: null };
+    const surveySaveChains = {
+      S: Promise.resolve(),
+      MID: Promise.resolve(),
+      N: Promise.resolve()
+    };
     const surveyRenderTimers = { S: null, MID: null, N: null };
 
+    // สำคัญ: ส่งคำสั่งบันทึกของแต่ละโซนแบบเรียงคิว
+    // ป้องกันการยิง POST หลายตัวพร้อมกันจนข้อมูลบางคลิกตกหล่น
     function queueSurveySave(zone, changes) {
       if (!changes || !changes.length) return;
       if (!surveySaveQueue[zone]) surveySaveQueue[zone] = new Map();
+
       changes.forEach(ch => {
         const key = `${ch.blockKey}|${ch.colNum}`;
         surveySaveQueue[zone].set(key, ch);
       });
+
       clearTimeout(surveySaveTimers[zone]);
       surveySaveTimers[zone] = setTimeout(() => {
-        const batch = Array.from(surveySaveQueue[zone].values());
-        surveySaveQueue[zone].clear();
-        if (batch.length) DB.saveSurvey(batch, zone);
-      }, 250);
+        flushSurveyZoneSave(zone);
+      }, 120);
+    }
+
+    function flushSurveyZoneSave(zone) {
+      const queue = surveySaveQueue[zone];
+      if (!queue || !queue.size) return surveySaveChains[zone] || Promise.resolve();
+
+      const batch = Array.from(queue.values());
+      queue.clear();
+
+      // ต่อท้าย promise เดิมเสมอ เพื่อให้ 45 -> 46 -> 47 -> 48
+      // ถูกส่งไป GAS ตามลำดับ ไม่ยิงชนกัน
+      surveySaveChains[zone] = (surveySaveChains[zone] || Promise.resolve())
+        .catch(() => {})
+        .then(() => DB.saveSurvey(batch, zone))
+        .catch(err => {
+          console.error('Survey save failed:', err);
+        });
+
+      return surveySaveChains[zone];
     }
 
     function scheduleSurveyRender(zone) {
@@ -1757,16 +1783,18 @@ body{
 
       ['S','MID','N'].forEach(zone => {
         clearTimeout(surveySaveTimers[zone]);
+        const p = flushSurveyZoneSave(zone);
+        if (p) promises.push(p);
+      });
 
-        const queue = surveySaveQueue[zone];
-        if (!queue || !queue.size) return;
+      if (promises.length) {
+        await Promise.allSettled(promises);
+      }
 
-        const batch = Array.from(queue.values());
-        queue.clear();
-
-        if (batch.length) {
-          const p = DB.saveSurvey(batch, zone);
-          if (p) promises.push(p);
+      // เผื่อมีรายการใหม่เข้าคิวระหว่างที่ batch ก่อนหน้ากำลังส่ง
+      ['S','MID','N'].forEach(zone => {
+        if (surveySaveQueue[zone] && surveySaveQueue[zone].size) {
+          promises.push(flushSurveyZoneSave(zone));
         }
       });
 
