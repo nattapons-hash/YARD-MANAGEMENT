@@ -2756,9 +2756,13 @@ body{
         btn.innerText = c;
         btn.title = `คอลัมน์ ${c}`;
         btn.addEventListener('click', () => {
+          // ห้าม renderMobileSurveyPage() ทุกครั้งที่กด เพราะการสร้าง DOM ใหม่
+          // ระหว่างที่ผู้ใช้กดรัว ๆ อาจทำให้ปุ่มที่กำลังจะกดถูกถอดออกจาก DOM
+          // และทำให้บางคลิก (เช่น 30 หรือ 33) หลุดหายไป
           setSurveyZoneColumnState(mobileSurveyZone, c, selectedSurveyMode);
-          // อัปเดตสีปุ่มทันที และปล่อยให้ render หลักไฮไลท์ช่องจริงด้วย
-          setTimeout(renderMobileSurveyPage, 20);
+
+          // เปลี่ยนสีปุ่มเดิมทันที โดยไม่สร้าง DOM ใหม่
+          btn.className = getMobileColumnButtonClass(mobileSurveyZone, c);
         });
         grid.appendChild(btn);
       }
