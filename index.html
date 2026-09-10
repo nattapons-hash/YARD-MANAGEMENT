@@ -475,73 +475,6 @@ header, .header, .topbar{
 </style>
 
 
-<style id="zone-column-keypad">
-/* แผงปุ่มเลือกคอลัมน์ด้านขวา: 1-65 แบบเครื่องคิดเลข */
-.zone-survey-layout{
-  display:grid;
-  grid-template-columns:minmax(0,1fr) 330px;
-  gap:14px;
-  align-items:start;
-  width:100%;
-}
-.zone-blocks-area{
-  min-width:0;
-}
-.zone-column-keypad{
-  position:sticky;
-  top:8px;
-  background:#fff;
-  border:1px solid #cbd5e1;
-  border-radius:12px;
-  padding:12px;
-  box-shadow:0 5px 18px rgba(31,48,71,.06);
-  box-sizing:border-box;
-}
-.zone-column-keypad-title{
-  font-size:12px;
-  font-weight:800;
-  color:#334155;
-  margin-bottom:9px;
-}
-.zone-column-keypad-grid{
-  display:grid;
-  grid-template-columns:repeat(5,minmax(0,1fr));
-  gap:7px;
-}
-.zone-column-key-btn{
-  height:42px;
-  min-width:0;
-  border:1px solid #cbd5e1;
-  border-radius:8px;
-  background:#f8fafc;
-  color:#334155;
-  font-size:14px;
-  font-weight:800;
-  cursor:pointer;
-  box-shadow:0 2px 4px rgba(31,48,71,.10);
-  transition:transform .1s ease, box-shadow .1s ease, background .1s ease;
-}
-.zone-column-key-btn:hover{
-  transform:translateY(-1px);
-  box-shadow:0 4px 8px rgba(31,48,71,.14);
-}
-.zone-column-key-btn:active{transform:translateY(0);}
-.zone-column-key-btn.active-empty{background:#dcfce7;border-color:#86efac;color:#15803d;}
-.zone-column-key-btn.active-out{background:#dbeafe;border-color:#93c5fd;color:#1d4ed8;}
-.zone-column-key-btn.active-in{background:#ffedd5;border-color:#fdba74;color:#c2410c;}
-.zone-column-key-btn.active-mmt{background:#f3e8ff;border-color:#d8b4fe;color:#7e22ce;}
-.zone-column-key-btn.active-mixed{background:#e2e8f0;border-color:#94a3b8;color:#334155;}
-@media(max-width:1100px){
-  .zone-survey-layout{grid-template-columns:minmax(0,1fr) 285px;}
-  .zone-column-keypad-grid{gap:5px;}
-  .zone-column-key-btn{height:38px;font-size:13px;}
-}
-@media(max-width:850px){
-  .zone-survey-layout{grid-template-columns:1fr;}
-  .zone-column-keypad{position:static;order:-1;}
-  .zone-column-keypad-grid{grid-template-columns:repeat(5,minmax(0,1fr));}
-}
-</style>
 <style id="wide-window-layout">
 /* ขยายหน้าต่างแปลนให้ใช้พื้นที่จอเต็มขึ้น */
 .zone-window{
@@ -738,55 +671,51 @@ body{
 .col-header.col-survey-in .col-number{background:transparent !important;border:0 !important;color:#c2410c !important;}
 .col-header.col-survey-mmt .col-number{background:transparent !important;border:0 !important;color:#7e22ce !important;}
 
-/* ===== ปุ่มตัวเลขด้านข้าง: 1-65 แบบปุ่มใหญ่ 5 คอลัมน์ ===== */
-/* ปุ่มอยู่ฝั่งซ้าย / แปลน BLOCK และ checkbox เดิมอยู่ฝั่งขวา */
-.zone-survey-layout{
-  display:grid !important;
-  grid-template-columns:330px minmax(0,1fr) !important;
-  gap:14px !important;
-  align-items:start !important;
+</style>
+
+<style id="mobile-survey-page">
+.mobile-survey-window{background:#f8fafc !important;}
+.mobile-survey-page{max-width:560px;margin:0 auto;padding:4px 2px 24px;color:#334155;}
+.mobile-survey-title{display:flex;flex-direction:column;gap:4px;margin-bottom:14px;}
+.mobile-survey-title strong{font-size:20px;color:#1e293b;}
+.mobile-survey-title span{font-size:13px;color:#64748b;}
+.mobile-section-label{font-size:14px;font-weight:800;color:#334155;margin-bottom:8px;}
+.mobile-zone-group,.mobile-mode-group,.mobile-keypad-card{background:#fff;border:1px solid #dbe3ec;border-radius:14px;padding:12px;margin-bottom:12px;box-shadow:0 4px 12px rgba(31,48,71,.06);}
+.mobile-zone-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.mobile-zone-btn{min-height:52px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;color:#334155;font-size:14px;font-weight:800;cursor:pointer;}
+.mobile-zone-btn small{display:block;font-size:11px;margin-top:2px;color:#64748b;font-weight:700;}
+.mobile-zone-btn.active{background:#dbeafe;border-color:#60a5fa;color:#1d4ed8;box-shadow:0 2px 7px rgba(37,99,235,.15);}
+.mobile-mode-select{width:100%;height:48px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#334155;font-size:16px;font-weight:700;padding:0 12px;}
+.mobile-zone-info{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:13px;text-align:center;}
+.mobile-keypad-title{font-size:14px;font-weight:800;margin-bottom:10px;color:#334155;}
+.mobile-keypad-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;}
+.mobile-col-btn{height:52px;border:1px solid #cbd5e1;border-radius:10px;background:#f8fafc;color:#334155;font-size:16px;font-weight:800;box-shadow:0 2px 5px rgba(31,48,71,.08);cursor:pointer;touch-action:manipulation;}
+.mobile-col-btn:active{transform:scale(.97);}
+.mobile-col-btn.active-empty{background:#dcfce7;border-color:#86efac;color:#15803d;}
+.mobile-col-btn.active-out{background:#dbeafe;border-color:#93c5fd;color:#1d4ed8;}
+.mobile-col-btn.active-in{background:#ffedd5;border-color:#fdba74;color:#c2410c;}
+.mobile-col-btn.active-mmt{background:#f3e8ff;border-color:#d8b4fe;color:#7e22ce;}
+.mobile-col-btn.active-mixed{background:#e2e8f0;border-color:#94a3b8;color:#334155;}
+.mobile-action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.mobile-view-zone-btn,.mobile-clear-btn{min-height:48px;border-radius:10px;font-size:14px;font-weight:800;cursor:pointer;}
+.mobile-view-zone-btn{border:1px solid #93c5fd;background:#eff6ff;color:#1d4ed8;}
+.mobile-clear-btn{border:1px solid #fca5a5;background:#fff1f2;color:#dc2626;}
+.mobile-select-launch{background:#0f766e !important;border-color:#14b8a6 !important;color:#fff !important;}
+@media(max-width:600px){
+  body{overflow-x:hidden !important;}
+  .mobile-survey-page{padding:0 0 18px;max-width:none;}
+  .mobile-survey-title strong{font-size:18px;}
+  .mobile-keypad-grid{gap:7px;}
+  .mobile-col-btn{height:52px;font-size:15px;border-radius:9px;}
+  .mobile-zone-btn{min-height:50px;font-size:13px;}
+  .mobile-action-row{grid-template-columns:1fr;}
 }
-.zone-column-keypad{
-  grid-column:1 !important;
-  grid-row:1 !important;
-}
-.zone-blocks-area{
-  grid-column:2 !important;
-  grid-row:1 !important;
-  min-width:0 !important;
-}
-.zone-column-keypad-grid{
-  display:grid !important;
-  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
-  gap:7px !important;
-}
-.zone-column-key-btn{
-  height:42px !important;
-  min-width:0 !important;
-  border:1px solid #cbd5e1 !important;
-  border-radius:8px !important;
-  background:#f8fafc !important;
-  color:#334155 !important;
-  font-size:14px !important;
-  font-weight:800 !important;
-  cursor:pointer !important;
-  box-shadow:0 2px 4px rgba(31,48,71,.10) !important;
-}
-.zone-column-key-btn.active-empty{background:#dcfce7 !important;border-color:#86efac !important;color:#15803d !important;}
-.zone-column-key-btn.active-out{background:#dbeafe !important;border-color:#93c5fd !important;color:#1d4ed8 !important;}
-.zone-column-key-btn.active-in{background:#ffedd5 !important;border-color:#fdba74 !important;color:#c2410c !important;}
-.zone-column-key-btn.active-mmt{background:#f3e8ff !important;border-color:#d8b4fe !important;color:#7e22ce !important;}
-.zone-column-key-btn.active-mixed{background:#e2e8f0 !important;border-color:#94a3b8 !important;color:#334155 !important;}
-@media(max-width:1100px){
-  .zone-survey-layout{grid-template-columns:minmax(0,1fr) 285px !important;}
-  .zone-column-key-btn{height:38px !important;font-size:13px !important;}
-}
-@media(max-width:850px){
-  .zone-survey-layout{grid-template-columns:1fr !important;}
-  .zone-column-keypad{position:static !important;grid-column:1 !important;grid-row:1 !important;}
-  .zone-blocks-area{grid-column:1 !important;grid-row:2 !important;}
+@media(max-width:360px){
+  .mobile-keypad-grid{gap:5px;}
+  .mobile-col-btn{height:48px;font-size:14px;}
 }
 </style>
+
 </head>
 <body>
 
@@ -797,6 +726,7 @@ body{
         <button class="window-launch-btn active" id="launch-btn-S" onclick="switchWindow('S')">📂 ฝั่งใต้(S)</button>
         <button class="window-launch-btn" id="launch-btn-MID" onclick="switchWindow('MID')">📂 หน้าตึก</button>
         <button class="window-launch-btn" id="launch-btn-N" onclick="switchWindow('N')">📂 ฝั่งเหนือ(N)</button>
+        <button class="window-launch-btn mobile-select-launch" id="launch-btn-MOBILE" onclick="switchWindow('MOBILE')">📱 เลือกพื้นที่โดยมือถือ</button>
         <button class="window-launch-btn" id="launch-btn-EMPTYSUMMARY" onclick="switchWindow('EMPTYSUMMARY')">📊 สรุปแถวว่าง</button>
         <button class="window-launch-btn" id="launch-btn-SUMMARY" onclick="switchWindow('SUMMARY')">📊 หน้าสรุปข้อมูลเรือ</button>
       </div>
@@ -986,6 +916,20 @@ body{
       </div>
     </div>
 
+    <!-- WINDOW MOBILE SURVEY -->
+    <div class="zone-window mobile-survey-window" id="window-MOBILE">
+      <div class="window-chrome">
+        <div class="window-title-area">
+          <div class="window-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+          <span class="window-title">📱 เลือกพื้นที่โดยมือถือ</span>
+        </div>
+        <div class="window-actions"><button class="btn-minimize">_</button></div>
+      </div>
+      <div class="window-body">
+        <div id="mobileSurveyPage" class="mobile-survey-page"></div>
+      </div>
+    </div>
+
     <!-- WINDOW EMPTY SURVEY SUMMARY -->
     <div class="zone-window" id="window-EMPTYSUMMARY">
       <div class="window-chrome">
@@ -1122,7 +1066,7 @@ body{
     let activeCurrentWindow = 'S';
 
     function switchWindow(zone) {
-      ['S', 'MID', 'N', 'EMPTYSUMMARY', 'SUMMARY'].forEach(z => {
+      ['S', 'MID', 'N', 'MOBILE', 'EMPTYSUMMARY', 'SUMMARY'].forEach(z => {
         document.getElementById(`window-${z}`).classList.remove('active');
         document.getElementById(`launch-btn-${z}`).classList.remove('active');
       });
@@ -1132,7 +1076,10 @@ body{
       activeCurrentWindow = zone;
       const clearGroup = document.getElementById('clearVesselControlGroup');
 
-      if (zone !== 'SUMMARY' && zone !== 'EMPTYSUMMARY') {
+      if (zone === 'MOBILE') {
+        clearGroup.style.display = 'none';
+        renderMobileSurveyPage();
+      } else if (zone !== 'SUMMARY' && zone !== 'EMPTYSUMMARY') {
         document.getElementById('targetZone').value = zone;
         updateTargetBlockDropdowns();
         clearGroup.style.display = 'flex';
@@ -2026,6 +1973,7 @@ body{
     function updateSurveyMode(mode, zone) {
       selectedSurveyMode = mode;
       renderYardWindow(zone);
+      renderMobileSurveyPage();
     }
 
     // เคลียร์ข้อมูลสำรวจทั้งหมดของโซนที่กำลังเปิดอยู่เท่านั้น
@@ -2148,46 +2096,12 @@ body{
         `แถวว่างใส่รถได้รวม ${getSurveyEmptyCapacity(zone)} คัน`;
       wrapper.appendChild(zoneSurveySummary);
 
-      // แผงหลักของแต่ละโซน: แปลนอยู่ซ้าย / ปุ่มเลือกคอลัมน์ 1-65 อยู่ขวา
+      // แผงแปลนของโซน — ไม่มีปุ่มตัวเลขซ้ำในแต่ละโซนแล้ว
       const zoneSurveyLayout = document.createElement('div');
       zoneSurveyLayout.className = 'zone-survey-layout';
 
       const blocksArea = document.createElement('div');
       blocksArea.className = 'zone-blocks-area';
-
-      const keypad = document.createElement('aside');
-      keypad.className = 'zone-column-keypad';
-
-      const keypadTitle = document.createElement('div');
-      keypadTitle.className = 'zone-column-keypad-title';
-      keypadTitle.innerText = `เลือกคอลัมน์ ${zone} (กดตัวเลขเพื่อเลือกทั้งโซน)`;
-      keypad.appendChild(keypadTitle);
-
-      const keypadGrid = document.createElement('div');
-      keypadGrid.className = 'zone-column-keypad-grid';
-
-      for (let c = 1; c <= config.maxCols; c++) {
-        const state = getSurveyZoneColumnState(zone, c);
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'zone-column-key-btn';
-        if (state.mode === 'empty') btn.classList.add('active-empty');
-        else if (state.mode === 'out') btn.classList.add('active-out');
-        else if (state.mode === 'in') btn.classList.add('active-in');
-        else if (state.mode === 'mmt') btn.classList.add('active-mmt');
-        else if (state.mode === 'mixed') btn.classList.add('active-mixed');
-        btn.innerText = c;
-        btn.title = `กดเลข ${c} = ${surveyModeMeta[selectedSurveyMode].label} คอลัมน์ ${c} ทุกบล็อคของโซน ${zone}`;
-        btn.addEventListener('click', e => {
-          e.stopPropagation();
-          setSurveyZoneColumnState(zone, c, selectedSurveyMode);
-        });
-        keypadGrid.appendChild(btn);
-      }
-
-      keypad.appendChild(keypadGrid);
-      // ปุ่มตัวเลขอยู่ซ้าย / BLOCK อยู่ขวา
-      zoneSurveyLayout.appendChild(keypad);
       zoneSurveyLayout.appendChild(blocksArea);
       wrapper.appendChild(zoneSurveyLayout);
 
@@ -2624,6 +2538,143 @@ body{
     }
 
 
+    // ============================================================
+    // หน้าใหม่สำหรับมือถือ: เลือกพื้นที่โดยมือถือ
+    // ใช้ surveyColumnState ชุดเดียวกับหน้าแปลนหลัก เพื่อให้การไฮไลท์
+    // และข้อมูลที่บันทึกลง Google Sheets เป็นชุดเดียวกัน
+    // ============================================================
+    let mobileSurveyZone = 'S';
+
+    function getMobileZoneName(zone) {
+      return zone === 'S' ? 'ฝั่งใต้ (S)' : (zone === 'MID' ? 'หน้าตึก (MID)' : 'ฝั่งเหนือ (N)');
+    }
+
+    function getMobileColumnButtonClass(zone, colNum) {
+      const state = getSurveyZoneColumnState(zone, colNum);
+      if (state.mode === 'empty') return 'mobile-col-btn active-empty';
+      if (state.mode === 'out') return 'mobile-col-btn active-out';
+      if (state.mode === 'in') return 'mobile-col-btn active-in';
+      if (state.mode === 'mmt') return 'mobile-col-btn active-mmt';
+      if (state.mode === 'mixed') return 'mobile-col-btn active-mixed';
+      return 'mobile-col-btn';
+    }
+
+    function renderMobileSurveyPage() {
+      const container = document.getElementById('mobileSurveyPage');
+      if (!container) return;
+
+      const config = zoneConfigs[mobileSurveyZone];
+      container.innerHTML = '';
+
+      const title = document.createElement('div');
+      title.className = 'mobile-survey-title';
+      title.innerHTML = '<strong>📱 เลือกพื้นที่โดยมือถือ</strong><span>แตะตัวเลขเพื่อไฮไลท์คอลัมน์ในโซนนั้น</span>';
+      container.appendChild(title);
+
+      const zoneGroup = document.createElement('div');
+      zoneGroup.className = 'mobile-zone-group';
+      const zoneLabel = document.createElement('div');
+      zoneLabel.className = 'mobile-section-label';
+      zoneLabel.innerText = 'เลือกโซน';
+      zoneGroup.appendChild(zoneLabel);
+
+      const zoneButtons = document.createElement('div');
+      zoneButtons.className = 'mobile-zone-buttons';
+      [
+        ['S', 'ฝั่งใต้', 'S'],
+        ['MID', 'หน้าตึก', 'MID'],
+        ['N', 'ฝั่งเหนือ', 'N']
+      ].forEach(([key,label,code]) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'mobile-zone-btn' + (mobileSurveyZone === key ? ' active' : '');
+        btn.innerHTML = `${label}<small>(${code})</small>`;
+        btn.addEventListener('click', () => {
+          mobileSurveyZone = key;
+          renderMobileSurveyPage();
+        });
+        zoneButtons.appendChild(btn);
+      });
+      zoneGroup.appendChild(zoneButtons);
+      container.appendChild(zoneGroup);
+
+      const modeGroup = document.createElement('div');
+      modeGroup.className = 'mobile-mode-group';
+      const modeLabel = document.createElement('div');
+      modeLabel.className = 'mobile-section-label';
+      modeLabel.innerText = 'เลือกโหมดสำรวจ';
+      modeGroup.appendChild(modeLabel);
+
+      const modeSelect = document.createElement('select');
+      modeSelect.className = 'mobile-mode-select';
+      modeSelect.innerHTML = `
+        <option value="empty">แถวว่าง</option>
+        <option value="out">หันออกทะเล</option>
+        <option value="in">หันเข้าฝั่ง</option>
+        <option value="mmt">MMT</option>
+      `;
+      modeSelect.value = selectedSurveyMode;
+      modeSelect.addEventListener('change', () => {
+        selectedSurveyMode = modeSelect.value;
+        renderMobileSurveyPage();
+        ['S','MID','N'].forEach(z => renderYardWindow(z));
+      });
+      modeGroup.appendChild(modeSelect);
+      container.appendChild(modeGroup);
+
+      const info = document.createElement('div');
+      info.className = 'mobile-zone-info';
+      info.innerHTML = `<strong>${getMobileZoneName(mobileSurveyZone)}</strong> · ${config.maxCols} คอลัมน์ · โหมด <strong>${surveyModeMeta[selectedSurveyMode].label}</strong>`;
+      container.appendChild(info);
+
+      const keypadCard = document.createElement('div');
+      keypadCard.className = 'mobile-keypad-card';
+      const keypadTitle = document.createElement('div');
+      keypadTitle.className = 'mobile-keypad-title';
+      keypadTitle.innerText = `แตะหมายเลขคอลัมน์ 1–${config.maxCols}`;
+      keypadCard.appendChild(keypadTitle);
+
+      const grid = document.createElement('div');
+      grid.className = 'mobile-keypad-grid';
+      for (let c = 1; c <= config.maxCols; c++) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = getMobileColumnButtonClass(mobileSurveyZone, c);
+        btn.innerText = c;
+        btn.title = `คอลัมน์ ${c}`;
+        btn.addEventListener('click', () => {
+          setSurveyZoneColumnState(mobileSurveyZone, c, selectedSurveyMode);
+          // อัปเดตสีปุ่มทันที และปล่อยให้ render หลักไฮไลท์ช่องจริงด้วย
+          setTimeout(renderMobileSurveyPage, 20);
+        });
+        grid.appendChild(btn);
+      }
+      keypadCard.appendChild(grid);
+      container.appendChild(keypadCard);
+
+      const actionRow = document.createElement('div');
+      actionRow.className = 'mobile-action-row';
+      const viewBtn = document.createElement('button');
+      viewBtn.type = 'button';
+      viewBtn.className = 'mobile-view-zone-btn';
+      viewBtn.innerText = `📍 ดูแปลน ${getMobileZoneName(mobileSurveyZone)}`;
+      viewBtn.addEventListener('click', () => switchWindow(mobileSurveyZone));
+      actionRow.appendChild(viewBtn);
+
+      const clearBtn = document.createElement('button');
+      clearBtn.type = 'button';
+      clearBtn.className = 'mobile-clear-btn';
+      clearBtn.innerText = `เคลียร์ ${surveyModeMeta[selectedSurveyMode].label}`;
+      clearBtn.addEventListener('click', () => {
+        if (confirm(`ยืนยันการเคลียร์ "${surveyModeMeta[selectedSurveyMode].label}" ของโซน ${mobileSurveyZone} หรือไม่?`)) {
+          clearSurveyMode(mobileSurveyZone);
+          setTimeout(renderMobileSurveyPage, 50);
+        }
+      });
+      actionRow.appendChild(clearBtn);
+      container.appendChild(actionRow);
+    }
+
     async function initFromGoogleSheet() {
       try {
         const data = await DB.loadAll();
@@ -2642,6 +2693,7 @@ body{
         bookingRecords = Array.isArray(data.bookings) ? data.bookings : [];
 
         renderAllYardWindows();
+        renderMobileSurveyPage();
         updateVesselLegend();
         if (activeCurrentWindow !== 'SUMMARY' && activeCurrentWindow !== 'EMPTYSUMMARY') {
           updateVesselClearDropdown(activeCurrentWindow);
@@ -2661,6 +2713,7 @@ body{
       renderZoneEmptyRangeInputs(z);
       saveAndCalculateZoneEmpty(z);
     });
+    renderMobileSurveyPage();
     initFromGoogleSheet();
   </script>
 </body>
@@ -2679,101 +2732,5 @@ body{
 .slot.survey-out,.slot.survey-in{
   font-size:0 !important;
   font-weight:400 !important;
-}
-</style>
-
-<style id="iphone-promax-keypad-responsive">
-/* ===== MOBILE / iPHONE PRO MAX =====
-   ปุ่มตัวเลขต้องพอดีกับหน้าจอมือถือ ไม่ขยายจนล้นจอ
-   ช่องติ๊กและขนาดตาราง BLOCK เดิมไม่ถูกขยาย
-*/
-@media (max-width:700px){
-  .zone-survey-layout{
-    display:flex !important;
-    flex-direction:column !important;
-    width:100% !important;
-    max-width:100% !important;
-    gap:10px !important;
-    overflow:visible !important;
-  }
-
-  .zone-column-keypad{
-    position:static !important;
-    order:0 !important;
-    width:100% !important;
-    max-width:100% !important;
-    box-sizing:border-box !important;
-    padding:9px !important;
-    margin:0 !important;
-    border-radius:12px !important;
-  }
-
-  .zone-column-keypad-title{
-    font-size:12px !important;
-    margin:0 0 7px !important;
-    line-height:1.3 !important;
-  }
-
-  .zone-column-keypad-grid{
-    width:100% !important;
-    max-width:100% !important;
-    display:grid !important;
-    grid-template-columns:repeat(5,minmax(0,1fr)) !important;
-    gap:6px !important;
-    box-sizing:border-box !important;
-  }
-
-  .zone-column-key-btn{
-    width:100% !important;
-    min-width:0 !important;
-    max-width:none !important;
-    height:42px !important;
-    padding:0 !important;
-    margin:0 !important;
-    border-radius:8px !important;
-    font-size:14px !important;
-    line-height:1 !important;
-    box-sizing:border-box !important;
-  }
-
-  .zone-blocks-area{
-    order:1 !important;
-    width:100% !important;
-    min-width:0 !important;
-    max-width:100% !important;
-    overflow-x:auto !important;
-    overflow-y:visible !important;
-    -webkit-overflow-scrolling:touch !important;
-  }
-
-  /* ให้แถบปุ่มไม่ทำให้หน้าเว็บทั้งหน้ากว้างเกินจอ */
-  body,
-  .desktop-workspace,
-  .window-body,
-  .zone-window{
-    max-width:100vw !important;
-    box-sizing:border-box !important;
-  }
-}
-
-/* iPhone Pro Max และมือถือขนาดใกล้เคียง */
-@media (max-width:430px){
-  .zone-column-keypad{padding:8px !important;}
-  .zone-column-keypad-grid{gap:5px !important;}
-  .zone-column-key-btn{
-    height:40px !important;
-    border-radius:7px !important;
-    font-size:13px !important;
-  }
-}
-
-/* จอมือถือแคบมาก */
-@media (max-width:375px){
-  .zone-column-keypad{padding:7px !important;}
-  .zone-column-keypad-grid{gap:4px !important;}
-  .zone-column-key-btn{
-    height:38px !important;
-    font-size:12px !important;
-  }
 }
 </style>
