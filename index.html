@@ -721,31 +721,7 @@ body{
 </style>
 
 
-<style id="mobile-refresh-button-style">
-.mobile-refresh-btn{
-  appearance:none;
-  border:1px solid #93c5fd;
-  background:#eff6ff;
-  color:#1d4ed8;
-  border-radius:9px;
-  min-height:38px;
-  padding:0 10px;
-  font-size:13px;
-  font-weight:800;
-  cursor:pointer;
-  white-space:nowrap;
-  box-sizing:border-box;
-}
-.mobile-refresh-btn:active{transform:scale(.97);}
-.mobile-refresh-btn:disabled{opacity:.65;cursor:wait;}
-@media(max-width:430px){
-  .mobile-refresh-btn{
-    min-height:34px;
-    padding:0 8px;
-    font-size:12px;
-  }
-}
-</style>
+
 
 <style id="top-refresh-button-style">
 .top-refresh-btn{
@@ -771,7 +747,7 @@ body{
       <h2>🚢 Yard Plan Survey - สำรวจแถวว่าง</h2>
       <div class="desktop-launcher">
         <button class="window-launch-btn top-refresh-btn" id="mobileRefreshBtn" onclick="refreshMobileData()">🔄 รีเฟรช</button>
-        <button class="window-launch-btn active" id="launch-btn-S" onclick="switchWindow('S')">📂 ฝั่งใต้(S)</button>
+        <button class="window-launch-btn" id="launch-btn-S" onclick="switchWindow('S')">📂 ฝั่งใต้(S)</button>
         <button class="window-launch-btn" id="launch-btn-MID" onclick="switchWindow('MID')">📂 หน้าตึก</button>
         <button class="window-launch-btn" id="launch-btn-N" onclick="switchWindow('N')">📂 ฝั่งเหนือ(N)</button>
         <button class="window-launch-btn mobile-select-launch" id="launch-btn-MOBILE" onclick="switchWindow('MOBILE')">📱 เลือกพื้นที่โดยมือถือ</button>
@@ -2629,25 +2605,6 @@ body{
       const zoneButtons = document.createElement('div');
       zoneButtons.className = 'mobile-zone-buttons';
 
-      // ปุ่มรีเฟรชข้อมูล — อยู่เป็นปุ่มแรกก่อนปุ่มเลือกโซนฝั่งใต้
-      const refreshBtn = document.createElement('button');
-      refreshBtn.type = 'button';
-      refreshBtn.className = 'mobile-zone-btn mobile-refresh-btn';
-      refreshBtn.innerHTML = '🔄<small>รีเฟรชข้อมูล</small>';
-      refreshBtn.title = 'โหลดข้อมูลล่าสุดจาก Google Sheets';
-      refreshBtn.addEventListener('click', async () => {
-        if (refreshBtn.disabled) return;
-        refreshBtn.disabled = true;
-        refreshBtn.classList.add('loading');
-        refreshBtn.innerHTML = '⟳<small>กำลังโหลด...</small>';
-        try {
-          await initFromGoogleSheet();
-        } finally {
-          refreshBtn.disabled = false;
-          refreshBtn.classList.remove('loading');
-        }
-      });
-      zoneButtons.appendChild(refreshBtn);
 
       [
         ['S', 'ฝั่งใต้', 'S'],
