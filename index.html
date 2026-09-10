@@ -1108,6 +1108,7 @@ body{
         updateTargetBlockDropdowns();
         clearGroup.style.display = 'flex';
         updateVesselClearDropdown(zone);
+        renderYardWindow(zone);
         saveAndCalculateZoneEmpty(zone);
       } else if (zone === 'EMPTYSUMMARY') {
         clearGroup.style.display = 'none';
@@ -1574,6 +1575,9 @@ body{
     // URL ของ Google Apps Script Web App
     const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxW5z6yzZyFTlW88N-kwEJ6SV-EW01M1ZnQeZ3Pg-p1OrAt08qzx6RDZJdm56Qrw6A/exec';
 
+    // ติดตามคำสั่งบันทึกที่กำลังส่ง เพื่อไม่ให้กดรีเฟรชแล้วอ่านข้อมูลเก่ากลับมา
+    const pendingDbWrites = new Set();
+
     const DB = {
       apiUrl: GOOGLE_APPS_SCRIPT_URL,
 
@@ -1634,29 +1638,53 @@ body{
       },
 
       saveSurvey(changes, zone) {
-        if (!changes || changes.length === 0) return;
+        if (!changes || changes.length === 0) return Promise.resolve(true);
         this.status(zone, '☁ กำลังบันทึก...', 'busy');
-        this.runServer('saveSurveyCells', [changes])
+
+        const promise = this.runServer('saveSurveyCells', [changes]);
+        pendingDbWrites.add(promise);
+
+        promise
           .then(() => this.status(zone, '☁ บันทึกแล้ว', 'ok'))
-          .catch(err => this.fail(zone, err));
+          .catch(err => this.fail(zone, err))
+          .finally(() => pendingDbWrites.delete(promise));
+
+        return promise;
       },
 
       clearSurveyMode(zone, mode) {
         this.status(zone, '☁ กำลังล้าง...', 'busy');
-        this.runServer('clearSurveyMode', [zone, mode])
+
+        const promise = this.runServer('clearSurveyMode', [zone, mode]);
+        pendingDbWrites.add(promise);
+
+        promise
           .then(() => this.status(zone, '☁ บันทึกแล้ว', 'ok'))
-          .catch(err => this.fail(zone, err));
+          .catch(err => this.fail(zone, err))
+          .finally(() => pendingDbWrites.delete(promise));
+
+        return promise;
       },
 
       clearSurveyZone(zone) {
         this.status(zone, '☁ กำลังล้างทั้งหมด...', 'busy');
-        this.runServer('clearSurveyZone', [zone])
+
+        const promise = this.runServer('clearSurveyZone', [zone]);
+        pendingDbWrites.add(promise);
+
+        promise
           .then(() => this.status(zone, '☁ บันทึกแล้ว', 'ok'))
-          .catch(err => this.fail(zone, err));
+          .catch(err => this.fail(zone, err))
+          .finally(() => pendingDbWrites.delete(promise));
+
+        return promise;
       },
 
       saveBookings(records) {
-        this.runServer('replaceBookings', [records])
+        const promise = this.runServer('replaceBookings', [records]);
+        pendingDbWrites.add(promise);
+
+        promise
           .then(() => {
             ['S','MID','N'].forEach(z => {
               if (document.getElementById(`dbStatus-${z}`)) {
@@ -1671,7 +1699,10 @@ body{
                 this.status(z, '⚠ บันทึกเรือไม่สำเร็จ', 'err');
               }
             });
-          });
+          })
+          .finally(() => pendingDbWrites.delete(promise));
+
+        return promise;
       },
 
       loadAll() {
@@ -1720,6 +1751,34 @@ body{
       clearTimeout(surveyRenderTimers[zone]);
       surveyRenderTimers[zone] = setTimeout(() => renderYardWindow(zone), 60);
     }
+
+    async function flushSurveySaveQueues() {
+      const promises = [];
+
+      ['S','MID','N'].forEach(zone => {
+        clearTimeout(surveySaveTimers[zone]);
+
+        const queue = surveySaveQueue[zone];
+        if (!queue || !queue.size) return;
+
+        const batch = Array.from(queue.values());
+        queue.clear();
+
+        if (batch.length) {
+          const p = DB.saveSurvey(batch, zone);
+          if (p) promises.push(p);
+        }
+      });
+
+      if (promises.length) {
+        await Promise.allSettled(promises);
+      }
+
+      if (pendingDbWrites.size) {
+        await Promise.allSettled(Array.from(pendingDbWrites));
+      }
+    }
+
 
     // ตรวจสอบพื้นที่ซ้ำก่อนเปลี่ยนโหมด เพื่อป้องกันการบันทึกทับโดยไม่ตั้งใจ
     function getSurveyOverlapWarnings(zone, targets, newMode) {
@@ -2718,7 +2777,13 @@ body{
         // โหลดข้อมูลเรือ
         bookingRecords = Array.isArray(data.bookings) ? data.bookings : [];
 
-        renderAllYardWindows();
+        // โหลดข้อมูลแล้ววาดเฉพาะหน้าที่กำลังเปิดอยู่
+        // โซนอื่นจะวาดเมื่อผู้ใช้กดเข้าโซนนั้น
+        if (activeCurrentWindow === 'S' || activeCurrentWindow === 'MID' || activeCurrentWindow === 'N') {
+          renderYardWindow(activeCurrentWindow);
+        } else {
+          renderYardWindow('S');
+        }
         renderMobileSurveyPage();
         updateVesselLegend();
         if (activeCurrentWindow !== 'SUMMARY' && activeCurrentWindow !== 'EMPTYSUMMARY') {
@@ -2747,28 +2812,20 @@ body{
 async function refreshMobileData(){
   const btn = document.getElementById('mobileRefreshBtn');
   if (!btn) return;
+
   const oldText = btn.innerText;
   btn.disabled = true;
   btn.innerText = '⏳ กำลังโหลด';
+
   try {
-    if (typeof DB !== 'undefined') {
-      if (typeof DB.loadInitialData === 'function') {
-        await DB.loadInitialData();
-      } else if (typeof DB.getInitialData === 'function') {
-        await DB.getInitialData();
-      } else if (typeof loadInitialData === 'function') {
-        await loadInitialData();
-      }
-    } else if (typeof loadInitialData === 'function') {
-      await loadInitialData();
+    // รอรายการที่ยังค้างส่งก่อน เพื่อไม่ให้รีเฟรชแล้วข้อมูลเก่าทับข้อมูลใหม่
+    if (typeof flushSurveySaveQueues === 'function') {
+      await flushSurveySaveQueues();
+    } else if (typeof pendingDbWrites !== 'undefined' && pendingDbWrites.size) {
+      await Promise.allSettled(Array.from(pendingDbWrites));
     }
 
-    if (typeof renderMobileColumnButtons === 'function') {
-      renderMobileColumnButtons();
-    }
-    if (typeof renderAllYardWindows === 'function') {
-      renderAllYardWindows();
-    }
+    await initFromGoogleSheet();
   } catch (err) {
     console.error('Mobile refresh error:', err);
     alert('รีเฟรชข้อมูลไม่สำเร็จ กรุณาลองใหม่อีกครั้ง');
