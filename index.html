@@ -154,53 +154,6 @@
 </style>
 
 
-
-<style id="survey-page-lock-css">
-.survey-page-control{
-  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-  width:100%;padding:8px 10px;margin:0 0 10px;
-  background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;
-}
-.survey-page-control .survey-page-label{font-size:12px;font-weight:800;color:#334155;}
-.survey-page-date{
-  height:34px;padding:0 9px;border:1px solid #94a3b8;border-radius:7px;
-  background:#fff;color:#1e293b;font-weight:700;
-}
-.survey-page-save-btn,.survey-page-edit-btn{
-  height:34px;padding:0 12px;border-radius:7px;font-weight:800;cursor:pointer;
-  border:1px solid transparent;
-}
-.survey-page-save-btn{background:#16a34a;color:#fff;border-color:#15803d;}
-.survey-page-save-btn:hover{background:#15803d;}
-.survey-page-edit-btn{background:#fff7ed;color:#c2410c;border-color:#fb923c;}
-.survey-page-edit-btn:hover{background:#ffedd5;}
-.survey-page-status{
-  min-height:30px;display:inline-flex;align-items:center;
-  padding:0 10px;border-radius:7px;font-size:12px;font-weight:800;
-}
-.survey-page-status.draft{background:#ecfdf5;color:#166534;border:1px solid #86efac;}
-.survey-page-status.editing{background:#eff6ff;color:#1d4ed8;border:1px solid #93c5fd;}
-.survey-page-status.locked{background:#fef2f2;color:#b91c1c;border:1px solid #fca5a5;}
-.survey-page-note{font-size:11px;color:#64748b;margin-left:auto;}
-.survey-page-locked .survey-mode-toolbar,
-.survey-page-locked .mobile-mode-group,
-.survey-page-locked .mobile-keypad-card{opacity:.82;}
-.survey-page-locked .col-header,
-.survey-page-locked .mobile-col-btn{cursor:not-allowed!important;}
-.mobile-page-control{
-  display:flex;flex-direction:column;gap:8px;padding:10px;
-  margin-bottom:10px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;
-}
-.mobile-page-control .survey-page-status{width:max-content;}
-@media(max-width:700px){
-  .survey-page-control{gap:6px;padding:8px;}
-  .survey-page-date{flex:1 1 130px;min-width:130px;}
-  .survey-page-save-btn,.survey-page-edit-btn{flex:1 1 130px;}
-  .survey-page-status{flex:1 1 100%;justify-content:center;}
-  .survey-page-note{display:none;}
-}
-</style>
-
 <style id="survey-four-mode-css">
 .survey-mode-toolbar{
   display:flex; align-items:center; gap:10px; flex-wrap:wrap;
@@ -1218,13 +1171,7 @@ body{
     let emptyRangeCounter = 100;
 
     let dsTsRangesCounter = 0;
-       const title = document.createElement('div');
-       title.className = 'mobile-survey-title';
-       title.innerHTML = '<strong>📱 เลือกพื้นที่โดยมือถือ</strong><span>แตะตัวเลขเพื่อไฮไลท์คอลัมน์ในโซนนั้น</span>';
-       container.appendChild(title);
-
-       const mobilePageControl = renderSurveyPageControls('mobile-page-control');
-       container.appendChild(mobilePageControl);
+    let activeCurrentWindow = 'S';
 
     function switchWindow(zone) {
       ['S', 'MID', 'N', 'MOBILE', 'EMPTYSUMMARY', 'SUMMARY'].forEach(z => {
@@ -1738,11 +1685,9 @@ body{
           args: Array.isArray(args) ? args : []
         };
 
-        // GET สำหรับอ่านข้อมูลและจัดการสถานะหน้าสำรวจ
-        if (['getInitialData','getSurveyPage','saveSurveyPage','unlockSurveyPage'].includes(functionName)) {
-          const surveyDate = encodeURIComponent((args && args[0]) || surveyPageDate || getBangkokTodayKey());
-          const url = this.apiUrl + '?action=' + encodeURIComponent(functionName) +
-            '&surveyDate=' + surveyDate + '&t=' + Date.now();
+        // GET สำหรับอ่านข้อมูลเริ่มต้น
+        if (functionName === 'getInitialData') {
+          const url = this.apiUrl + '?action=getInitialData&t=' + Date.now();
           const response = await fetch(url, {
             method: 'GET',
             redirect: 'follow',
@@ -1780,7 +1725,7 @@ body{
         if (!changes || changes.length === 0) return Promise.resolve(true);
         this.status(zone, '☁ กำลังบันทึก...', 'busy');
 
-        const promise = this.runServer('saveSurveyCells', [changes, surveyPageDate]);
+        const promise = this.runServer('saveSurveyCells', [changes]);
         pendingDbWrites.add(promise);
 
         promise
@@ -1794,7 +1739,7 @@ body{
       clearSurveyMode(zone, mode) {
         this.status(zone, '☁ กำลังล้าง...', 'busy');
 
-        const promise = this.runServer('clearSurveyMode', [zone, mode, surveyPageDate]);
+        const promise = this.runServer('clearSurveyMode', [zone, mode]);
         pendingDbWrites.add(promise);
 
         promise
@@ -1808,7 +1753,7 @@ body{
       clearSurveyZone(zone) {
         this.status(zone, '☁ กำลังล้างทั้งหมด...', 'busy');
 
-        const promise = this.runServer('clearSurveyZone', [zone, surveyPageDate]);
+        const promise = this.runServer('clearSurveyZone', [zone]);
         pendingDbWrites.add(promise);
 
         promise
@@ -1844,16 +1789,8 @@ body{
         return promise;
       },
 
-      saveSurveyPage(date) {
-        return this.runServer('saveSurveyPage', [date]);
-      },
-
-      unlockSurveyPage(date) {
-        return this.runServer('unlockSurveyPage', [date]);
-      },
-
-      loadAll(date) {
-        return this.runServer('getInitialData', [date || surveyPageDate]);
+      loadAll() {
+        return this.runServer('getInitialData', []);
       }
     };
 
@@ -1955,7 +1892,6 @@ body{
     }
 
     function addCustomSurveyMode(label, rerenderZone='') {
-      if (!ensureSurveyPageEditable()) return '';
       const clean = String(label || '').trim();
       if (!clean) return '';
       const key = registerCustomSurveyMode(clean);
@@ -2075,7 +2011,6 @@ body{
     }
 
     async function editCustomSurveyMode(mode) {
-      if (!ensureSurveyPageEditable()) return;
       if (!customSurveyModes[mode]) return;
       const currentLabel = customSurveyModes[mode].label;
       const newName = prompt(`แก้ไขชื่อโหมดสำรวจ\n\nชื่อเดิม: ${currentLabel}\n\nชื่อใหม่:`, currentLabel);
@@ -2126,7 +2061,6 @@ body{
     }
 
     async function deleteCustomSurveyMode(mode) {
-      if (!ensureSurveyPageEditable()) return;
       if (!customSurveyModes[mode]) return;
       const currentLabel = customSurveyModes[mode].label;
       let usedCount = 0;
@@ -2373,7 +2307,6 @@ body{
     }
 
     function setSurveyColumnState(zone, blockKey, colNum, mode) {
-      if (!ensureSurveyPageEditable()) return;
       if (!surveyColumnState[zone]) surveyColumnState[zone] = {};
       if (!surveyColumnState[zone][blockKey]) surveyColumnState[zone][blockKey] = {};
 
@@ -2390,7 +2323,6 @@ body{
     }
 
     function setSurveyZoneColumnState(zone, colNum, mode) {
-      if (!ensureSurveyPageEditable()) return;
       const config = zoneConfigs[zone];
       if (!surveyColumnState[zone]) surveyColumnState[zone] = {};
 
@@ -2424,7 +2356,6 @@ body{
 
     // เลือกช่วงแถว/คอลัมน์ทีเดียวทุกบล็อคของโซนที่กำลังแสดง
     function applySurveyRange(zone) {
-      if (!ensureSurveyPageEditable()) return;
       const config = zoneConfigs[zone];
       const startEl = document.getElementById(`surveyRangeStart-${zone}`);
       const endEl = document.getElementById(`surveyRangeEnd-${zone}`);
@@ -2526,7 +2457,6 @@ body{
     }
 
     function clearSurveyMode(zone) {
-      if (!ensureSurveyPageEditable()) return;
       const mode = selectedSurveyMode;
       const config = zoneConfigs[zone];
       if (!surveyColumnState[zone]) surveyColumnState[zone] = {};
@@ -2554,7 +2484,6 @@ body{
 
     // เคลียร์ข้อมูลสำรวจทั้งหมดของโซนที่กำลังเปิดอยู่เท่านั้น
     function clearAllSurveyZone(zone) {
-      if (!ensureSurveyPageEditable()) return;
       const config = zoneConfigs[zone];
       if (!surveyColumnState[zone]) surveyColumnState[zone] = {};
 
@@ -2581,15 +2510,11 @@ body{
       const wrapper = document.getElementById(`blocksWrapper-${zone}`);
       if (!wrapper) return;
       wrapper.innerHTML = '';
-      wrapper.classList.toggle('survey-page-locked', isSurveyPageLocked());
 
       const config = zoneConfigs[zone];
       const sizeEl = document.getElementById('vehicleSize');
       const size = sizeEl ? sizeEl.value : 'pickup';
       const zoneBookings = bookingRecords.filter(b => b.zone === zone);
-
-      // ควบคุมหน้าสำรวจแยกตามวันที่
-      wrapper.appendChild(renderSurveyPageControls());
 
       // แถบเลือกโหมดสำรวจของโซน
       const toolbar = document.createElement('div');
@@ -2603,7 +2528,6 @@ body{
       modeSelect.className = 'survey-mode-select';
       modeSelect.innerHTML = getSurveyModeOptionsHtml();
       modeSelect.value = selectedSurveyMode;
-      modeSelect.disabled = isSurveyPageLocked();
       modeSelect.addEventListener('change', () => updateSurveyMode(modeSelect.value, zone));
       toolbar.appendChild(modeSelect);
 
@@ -2612,7 +2536,6 @@ body{
       addModeBtn.className = 'survey-add-mode-btn';
       addModeBtn.innerText = '+ เพิ่มโหมด';
       addModeBtn.title = 'เพิ่มชื่อโหมดสำรวจ เช่น TOYOTA, ISUZU, Mazda';
-      addModeBtn.disabled = isSurveyPageLocked();
       addModeBtn.addEventListener('click', () => {
         const name = prompt('เพิ่มโหมดสำรวจใหม่\n\nตัวอย่าง: TOYOTA, ISUZU, Mazda');
         if (!name || !name.trim()) return;
@@ -2625,7 +2548,6 @@ body{
       manageModeBtn.className = 'survey-manage-mode-btn';
       manageModeBtn.innerText = 'แก้ไข / ลบโหมด';
       manageModeBtn.title = 'แก้ไขหรือลบโหมดสำรวจที่เพิ่มเอง';
-      manageModeBtn.disabled = isSurveyPageLocked();
       manageModeBtn.addEventListener('click', manageCustomSurveyMode);
       toolbar.appendChild(manageModeBtn);
 
@@ -2639,9 +2561,7 @@ body{
         <input id="surveyRangeEnd-${zone}" class="survey-range-input" type="number" min="1" max="${config.maxCols}" value="${Math.min(5, config.maxCols)}" inputmode="numeric">
         <button type="button" class="survey-range-btn">ใช้ช่วง</button>
       `;
-      const rangeBtn = rangeGroup.querySelector('.survey-range-btn');
-      rangeBtn.disabled = isSurveyPageLocked();
-      rangeBtn.addEventListener('click', () => {
+      rangeGroup.querySelector('.survey-range-btn').addEventListener('click', () => {
         applySurveyRange(zone);
       });
       toolbar.appendChild(rangeGroup);
@@ -2667,7 +2587,6 @@ body{
       clearBtn.className = 'survey-clear-btn';
       clearBtn.innerText = `เคลียร์ ${(getSurveyModeMeta(selectedSurveyMode) || {label:selectedSurveyMode}).label}`;
       clearBtn.title = `ล้างเครื่องหมาย ${(getSurveyModeMeta(selectedSurveyMode) || {label:selectedSurveyMode}).label} ของโซนนี้`;
-      clearBtn.disabled = isSurveyPageLocked();
       clearBtn.addEventListener('click', () => {
         if (confirm(`ยืนยันการเคลียร์ "${(getSurveyModeMeta(selectedSurveyMode) || {label:selectedSurveyMode}).label}" ของโซน ${zone} หรือไม่?`)) {
           clearSurveyMode(zone);
@@ -2679,7 +2598,6 @@ body{
       clearAllBtn.className = 'survey-clear-btn survey-clear-all-btn';
       clearAllBtn.innerText = 'เคลียร์ทั้งหมด';
       clearAllBtn.title = `ล้างข้อมูลสำรวจทั้งหมดของโซน ${zone} ที่กำลังเปิดอยู่`;
-      clearAllBtn.disabled = isSurveyPageLocked();
       clearAllBtn.addEventListener('click', () => {
         if (confirm(`ยืนยันการเคลียร์ข้อมูลสำรวจทั้งหมดของโซน ${zone} หรือไม่?\n\nข้อมูลทุกโหมดของโซนนี้จะถูกล้าง`)) {
           clearAllSurveyZone(zone);
@@ -2740,7 +2658,6 @@ body{
           check.type = 'checkbox';
           check.className = 'col-check';
           check.checked = !!colState;
-          check.disabled = isSurveyPageLocked();
           check.title = `เลือกคอลัมน์ ${c} เฉพาะ BLOCK ${block.key}`;
           check.addEventListener('click', e => e.stopPropagation());
           check.addEventListener('change', e => {
@@ -3175,7 +3092,6 @@ body{
       const container = document.getElementById('mobileSurveyPage');
       if (!container) return;
 
-      container.classList.toggle('survey-page-locked', isSurveyPageLocked());
       const config = zoneConfigs[mobileSurveyZone];
       container.innerHTML = '';
 
@@ -3183,8 +3099,6 @@ body{
       title.className = 'mobile-survey-title';
       title.innerHTML = '<strong>📱 เลือกพื้นที่โดยมือถือ</strong><span>แตะตัวเลขเพื่อไฮไลท์คอลัมน์ในโซนนั้น</span>';
       container.appendChild(title);
-      const mobilePageControl = renderSurveyPageControls('mobile-page-control');
-      container.appendChild(mobilePageControl);
 
       const zoneGroup = document.createElement('div');
       zoneGroup.className = 'mobile-zone-group';
@@ -3226,7 +3140,6 @@ body{
       modeSelect.className = 'mobile-mode-select';
       modeSelect.innerHTML = getSurveyModeOptionsHtml();
       modeSelect.value = selectedSurveyMode;
-      modeSelect.disabled = isSurveyPageLocked();
       modeSelect.addEventListener('change', () => {
         selectedSurveyMode = modeSelect.value;
         renderMobileSurveyPage();
@@ -3244,7 +3157,6 @@ body{
       const addModeBtn = document.createElement('button');
       addModeBtn.type = 'button';
       addModeBtn.className = 'mobile-add-mode-btn';
-      addModeBtn.disabled = isSurveyPageLocked();
       addModeBtn.innerText = '+ เพิ่ม';
       const submitCustomMode = () => {
         if (!addModeInput.value.trim()) return;
@@ -3259,7 +3171,6 @@ body{
       const manageModeBtn = document.createElement('button');
       manageModeBtn.type = 'button';
       manageModeBtn.className = 'mobile-manage-mode-btn';
-      manageModeBtn.disabled = isSurveyPageLocked();
       manageModeBtn.innerText = 'แก้ไข / ลบโหมดสำรวจ';
       manageModeBtn.addEventListener('click', manageCustomSurveyMode);
       modeGroup.appendChild(manageModeBtn);
@@ -3286,7 +3197,6 @@ body{
         btn.className = getMobileColumnButtonClass(mobileSurveyZone, c);
         btn.innerText = c;
         btn.title = `คอลัมน์ ${c}`;
-        btn.disabled = isSurveyPageLocked();
         btn.addEventListener('click', () => {
           // ห้าม renderMobileSurveyPage() ทุกครั้งที่กด เพราะการสร้าง DOM ใหม่
           // ระหว่างที่ผู้ใช้กดรัว ๆ อาจทำให้ปุ่มที่กำลังจะกดถูกถอดออกจาก DOM
@@ -3314,7 +3224,6 @@ body{
       clearBtn.type = 'button';
       clearBtn.className = 'mobile-clear-btn';
       clearBtn.innerText = 'เคลียร์ทั้งโซน';
-      clearBtn.disabled = isSurveyPageLocked();
       clearBtn.addEventListener('click', () => {
         if (confirm(`ยืนยันการเคลียร์ข้อมูลสำรวจทั้งหมดของโซน ${mobileSurveyZone} หรือไม่?\n\nข้อมูลทุกโหมดของโซนนี้จะถูกล้าง`)) {
           clearAllSurveyZone(mobileSurveyZone);
@@ -3325,23 +3234,11 @@ body{
       container.appendChild(actionRow);
     }
 
-    async function initFromGoogleSheet(dateKey) {
+    async function initFromGoogleSheet() {
       try {
-        if (dateKey) surveyPageDate = dateKey;
-        const data = await DB.loadAll(surveyPageDate);
+        const data = await DB.loadAll();
 
-        // โหลดสถานะของหน้าสำรวจวันที่เลือก
-        surveyPageInfo = data.surveyPage || {
-          surveyDate: surveyPageDate,
-          status:'DRAFT',
-          savedAt:'',
-          savedBy:'',
-          updatedAt:'',
-          updatedBy:''
-        };
-        surveyPageDate = surveyPageInfo.surveyDate || surveyPageDate;
-
-        // โหลดข้อมูลสำรวจของวันที่เลือก
+        // โหลดข้อมูลสำรวจ
         ['S','MID','N'].forEach(z => surveyColumnState[z] = {});
         (data.surveys || []).forEach(item => {
           if (!surveyColumnState[item.zone]) surveyColumnState[item.zone] = {};
