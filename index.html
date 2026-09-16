@@ -739,6 +739,20 @@ body{
 }
 </style>
 
+
+<style id="dynamic-survey-mode-css">
+.survey-add-mode-btn{height:36px;padding:0 12px;border:1px solid #0f766e;border-radius:8px;background:#f0fdfa;color:#0f766e;font-weight:800;cursor:pointer;white-space:nowrap;}
+.survey-add-mode-btn:hover{background:#ccfbf1;}
+.slot.survey-custom{background:#e0f2fe !important;border:1px solid #7dd3fc !important;color:#0c4a6e !important;font-size:11px !important;font-weight:800 !important;line-height:1 !important;}
+.col-header.col-survey-custom{color:#0c4a6e;background:#e0f2fe;border-radius:4px;}
+.zone-master-col.master-survey-custom{color:#0c4a6e;background:#e0f2fe;border-radius:4px;}
+.mobile-col-btn.active-custom{background:#e0f2fe;border-color:#7dd3fc;color:#0c4a6e;}
+.mobile-add-mode-row{display:grid;grid-template-columns:1fr auto;gap:6px;margin-top:6px;}
+.mobile-add-mode-input{height:34px;border:1px solid #cbd5e1;border-radius:7px;padding:0 9px;font-size:13px;color:#334155;background:#fff;}
+.mobile-add-mode-btn{height:34px;padding:0 10px;border:1px solid #0f766e;border-radius:7px;background:#f0fdfa;color:#0f766e;font-weight:800;cursor:pointer;}
+@media(max-width:700px){.survey-add-mode-btn{height:38px;font-size:12px;padding:0 10px;}}
+</style>
+
 </head>
 <body>
 
@@ -1715,10 +1729,89 @@ body{
 
     const surveyModeMeta = {
       empty: { label: 'แถวว่าง', css: 'survey-empty', headerCss: 'col-survey-empty', masterCss: 'master-survey-empty', mark: '' },
-      out:   { label: 'หันออกทะเล',   css: 'survey-out',   headerCss: 'col-survey-out',   masterCss: 'master-survey-out',   mark: '▲' },
-      in:    { label: 'หันเข้าฝั่ง',   css: 'survey-in',    headerCss: 'col-survey-in',    masterCss: 'master-survey-in',    mark: '▼' },
-      mmt:   { label: 'MMT',       css: 'survey-mmt',   headerCss: 'col-survey-mmt',   masterCss: 'master-survey-mmt',   mark: 'M' }
+      out:   { label: 'หันออกทะเล', css: 'survey-out', headerCss: 'col-survey-out', masterCss: 'master-survey-out', mark: '▲' },
+      in:    { label: 'หันเข้าฝั่ง', css: 'survey-in', headerCss: 'col-survey-in', masterCss: 'master-survey-in', mark: '▼' },
+      mmt:   { label: 'MMT', css: 'survey-mmt', headerCss: 'col-survey-mmt', masterCss: 'master-survey-mmt', mark: 'M' }
     };
+
+    // โหมดสำรวจที่ผู้ใช้เพิ่มเอง เช่น TOYOTA / ISUZU / Mazda
+    // เก็บชื่อไว้ในค่า mode โดยตรงในรูป custom:ชื่อโหมด จึงไม่ต้องแก้ GAS
+    const customSurveyModes = {};
+
+    function getCustomSurveyMark(label) {
+      const name = String(label || '').trim();
+      if (!name) return '?';
+      // Mazda ใช้ m ตัวเล็ก เพื่อไม่ชนกับ MMT ที่ใช้ M ตัวใหญ่
+      if (/^mazda$/i.test(name)) return 'm';
+      return name.charAt(0).toUpperCase();
+    }
+
+    function registerCustomSurveyMode(modeOrLabel) {
+      let raw = String(modeOrLabel || '').trim();
+      if (!raw) return '';
+
+      let key = raw.startsWith('custom:') ? raw : `custom:${raw}`;
+      let label = key.slice(7).trim();
+      if (!label) return '';
+
+      customSurveyModes[key] = {
+        label,
+        css: 'survey-custom',
+        headerCss: 'col-survey-custom',
+        masterCss: 'master-survey-custom',
+        mark: getCustomSurveyMark(label)
+      };
+      return key;
+    }
+
+    function getSurveyModeMeta(mode) {
+      if (!mode) return null;
+      if (surveyModeMeta[mode]) return surveyModeMeta[mode];
+      if (customSurveyModes[mode]) return customSurveyModes[mode];
+      if (String(mode).startsWith('custom:')) {
+        registerCustomSurveyMode(mode);
+        return customSurveyModes[mode];
+      }
+      // รองรับข้อมูลเก่าที่อาจมีชื่อโหมดใหม่ถูกบันทึกเป็นข้อความตรง ๆ
+      const key = registerCustomSurveyMode(mode);
+      return key ? customSurveyModes[key] : null;
+    }
+
+    function getSurveyModeOptionsHtml() {
+      const base = [
+        ['empty','แถวว่าง'],
+        ['out','หันออกทะเล'],
+        ['in','หันเข้าฝั่ง'],
+        ['mmt','MMT']
+      ];
+      const custom = Object.entries(customSurveyModes)
+        .sort((a,b) => a[1].label.localeCompare(b[1].label, 'th'))
+        .map(([key, meta]) => [key, meta.label]);
+      return base.concat(custom)
+        .map(([value,label]) => `<option value="${escapeHtmlAttr(value)}">${escapeHtml(label)}</option>`)
+        .join('');
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#039;');
+    }
+
+    function escapeHtmlAttr(value) {
+      return escapeHtml(value);
+    }
+
+    function addCustomSurveyMode(label, rerenderZone='') {
+      const clean = String(label || '').trim();
+      if (!clean) return '';
+      const key = registerCustomSurveyMode(clean);
+      selectedSurveyMode = key;
+
+      if (rerenderZone && ['S','MID','N'].includes(rerenderZone)) renderYardWindow(rerenderZone);
+      renderMobileSurveyPage();
+      return key;
+    }
 
     function getSurveyColumnState(zone, blockKey, colNum) {
       return (surveyColumnState[zone] && surveyColumnState[zone][blockKey])
@@ -1900,9 +1993,9 @@ body{
       const warnings = getSurveyOverlapWarnings(zone, targets, newMode);
       if (!warnings.length) return true;
 
-      const newLabel = surveyModeMeta[newMode].label;
+      const newLabel = (getSurveyModeMeta(newMode) || {label:newMode}).label;
       const lines = warnings.map(w => {
-        const oldLabel = surveyModeMeta[w.oldMode].label;
+        const oldLabel = (getSurveyModeMeta(w.oldMode) || {label:w.oldMode}).label;
         const blockText = formatSurveyBlockGroup(w.blocks);
         return `• พื้นที่${newLabel}ซ้ำกับพื้นที่${oldLabel} (${blockText}) — แถว ${w.start} ถึง ${w.end}`;
       });
@@ -2132,15 +2225,22 @@ body{
 
       const modeSelect = document.createElement('select');
       modeSelect.className = 'survey-mode-select';
-      modeSelect.innerHTML = `
-        <option value="empty">แถวว่าง</option>
-        <option value="out">หันออกทะเล</option>
-        <option value="in">หันเข้าฝั่ง</option>
-        <option value="mmt">MMT</option>
-      `;
+      modeSelect.innerHTML = getSurveyModeOptionsHtml();
       modeSelect.value = selectedSurveyMode;
       modeSelect.addEventListener('change', () => updateSurveyMode(modeSelect.value, zone));
       toolbar.appendChild(modeSelect);
+
+      const addModeBtn = document.createElement('button');
+      addModeBtn.type = 'button';
+      addModeBtn.className = 'survey-add-mode-btn';
+      addModeBtn.innerText = '+ เพิ่มโหมด';
+      addModeBtn.title = 'เพิ่มชื่อโหมดสำรวจ เช่น TOYOTA, ISUZU, Mazda';
+      addModeBtn.addEventListener('click', () => {
+        const name = prompt('เพิ่มโหมดสำรวจใหม่\n\nตัวอย่าง: TOYOTA, ISUZU, Mazda');
+        if (!name || !name.trim()) return;
+        addCustomSurveyMode(name, zone);
+      });
+      toolbar.appendChild(addModeBtn);
 
       // กรอกช่วงแถว/คอลัมน์เพื่อเลือกทีเดียว แทนการติ๊กทีละช่องบนมือถือ
       const rangeGroup = document.createElement('div');
@@ -2176,10 +2276,10 @@ body{
 
       const clearBtn = document.createElement('button');
       clearBtn.className = 'survey-clear-btn';
-      clearBtn.innerText = `เคลียร์ ${surveyModeMeta[selectedSurveyMode].label}`;
-      clearBtn.title = `ล้างเครื่องหมาย ${surveyModeMeta[selectedSurveyMode].label} ของโซนนี้`;
+      clearBtn.innerText = `เคลียร์ ${(getSurveyModeMeta(selectedSurveyMode) || {label:selectedSurveyMode}).label}`;
+      clearBtn.title = `ล้างเครื่องหมาย ${(getSurveyModeMeta(selectedSurveyMode) || {label:selectedSurveyMode}).label} ของโซนนี้`;
       clearBtn.addEventListener('click', () => {
-        if (confirm(`ยืนยันการเคลียร์ "${surveyModeMeta[selectedSurveyMode].label}" ของโซน ${zone} หรือไม่?`)) {
+        if (confirm(`ยืนยันการเคลียร์ "${(getSurveyModeMeta(selectedSurveyMode) || {label:selectedSurveyMode}).label}" ของโซน ${zone} หรือไม่?`)) {
           clearSurveyMode(zone);
         }
       });
@@ -2200,12 +2300,16 @@ body{
 
       const zoneSurveySummary = document.createElement('div');
       zoneSurveySummary.className = 'survey-capacity';
+      const customSummaryParts = Object.entries(customSurveyModes)
+        .map(([mode, meta]) => `${meta.label} ${getSurveyColumnCountByMode(zone, mode)} คอลัมน์`)
+        .filter(text => !text.endsWith(' 0 คอลัมน์'));
       zoneSurveySummary.innerText =
         `รวมโซน ${zone}: แถวว่าง ${getSurveyColumnCountByMode(zone, 'empty')} คอลัมน์ | ` +
         `หันออก ${getSurveyColumnCountByMode(zone, 'out')} คอลัมน์ | ` +
         `หันเข้า ${getSurveyColumnCountByMode(zone, 'in')} คอลัมน์ | ` +
-        `MMT ${getSurveyColumnCountByMode(zone, 'mmt')} คอลัมน์ | ` +
-        `แถวว่างใส่รถได้รวม ${getSurveyEmptyCapacity(zone)} คัน`;
+        `MMT ${getSurveyColumnCountByMode(zone, 'mmt')} คอลัมน์` +
+        (customSummaryParts.length ? ` | ${customSummaryParts.join(' | ')}` : '') +
+        ` | แถวว่างใส่รถได้รวม ${getSurveyEmptyCapacity(zone)} คัน`;
       wrapper.appendChild(zoneSurveySummary);
 
       // แผงแปลนของโซน — ไม่มีปุ่มตัวเลขซ้ำในแต่ละโซนแล้ว
@@ -2236,7 +2340,7 @@ body{
         colHeaderRow.className = 'col-header-row';
         for (let c = 1; c <= maxCols; c++) {
           const colState = getSurveyColumnState(zone, block.key, c);
-          const colMeta = colState ? surveyModeMeta[colState] : null;
+          const colMeta = colState ? getSurveyModeMeta(colState) : null;
           const colHead = document.createElement('div');
           colHead.className = 'col-header' + (colMeta ? ` ${colMeta.headerCss}` : '');
 
@@ -2284,7 +2388,7 @@ body{
               slot.title = `ช่องโครงสร้างหนัก/เสา (Block ${block.key}, R${r}, C${c})`;
             } else if (getSurveyColumnState(zone, block.key, c)) {
               const surveyState = getSurveyColumnState(zone, block.key, c);
-              const surveyMeta = surveyModeMeta[surveyState];
+              const surveyMeta = getSurveyModeMeta(surveyState);
               slot.className = `slot survey-marked ${surveyMeta.css}`;
               slot.innerText = surveyMeta.mark;
               slot.title = `${surveyMeta.label} (Block ${block.key}, R${r}, C${c})`;
@@ -2667,6 +2771,7 @@ body{
       if (state.mode === 'out') return 'mobile-col-btn active-out';
       if (state.mode === 'in') return 'mobile-col-btn active-in';
       if (state.mode === 'mmt') return 'mobile-col-btn active-mmt';
+      if (state.mode && state.mode !== 'mixed') return 'mobile-col-btn active-custom';
       if (state.mode === 'mixed') return 'mobile-col-btn active-mixed';
       return 'mobile-col-btn';
     }
@@ -2721,12 +2826,7 @@ body{
 
       const modeSelect = document.createElement('select');
       modeSelect.className = 'mobile-mode-select';
-      modeSelect.innerHTML = `
-        <option value="empty">แถวว่าง</option>
-        <option value="out">หันออกทะเล</option>
-        <option value="in">หันเข้าฝั่ง</option>
-        <option value="mmt">MMT</option>
-      `;
+      modeSelect.innerHTML = getSurveyModeOptionsHtml();
       modeSelect.value = selectedSurveyMode;
       modeSelect.addEventListener('change', () => {
         selectedSurveyMode = modeSelect.value;
@@ -2734,11 +2834,32 @@ body{
         ['S','MID','N'].forEach(z => renderYardWindow(z));
       });
       modeGroup.appendChild(modeSelect);
+
+      const addModeRow = document.createElement('div');
+      addModeRow.className = 'mobile-add-mode-row';
+      const addModeInput = document.createElement('input');
+      addModeInput.className = 'mobile-add-mode-input';
+      addModeInput.type = 'text';
+      addModeInput.placeholder = 'เพิ่มโหมด เช่น TOYOTA';
+      addModeInput.autocomplete = 'off';
+      const addModeBtn = document.createElement('button');
+      addModeBtn.type = 'button';
+      addModeBtn.className = 'mobile-add-mode-btn';
+      addModeBtn.innerText = '+ เพิ่ม';
+      const submitCustomMode = () => {
+        if (!addModeInput.value.trim()) return;
+        addCustomSurveyMode(addModeInput.value);
+      };
+      addModeBtn.addEventListener('click', submitCustomMode);
+      addModeInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitCustomMode(); });
+      addModeRow.appendChild(addModeInput);
+      addModeRow.appendChild(addModeBtn);
+      modeGroup.appendChild(addModeRow);
       container.appendChild(modeGroup);
 
       const info = document.createElement('div');
       info.className = 'mobile-zone-info';
-      info.innerHTML = `<strong>${getMobileZoneName(mobileSurveyZone)}</strong> · ${config.maxCols} คอลัมน์ · โหมด <strong>${surveyModeMeta[selectedSurveyMode].label}</strong>`;
+      info.innerHTML = `<strong>${getMobileZoneName(mobileSurveyZone)}</strong> · ${config.maxCols} คอลัมน์ · โหมด <strong>${(getSurveyModeMeta(selectedSurveyMode) || {label:selectedSurveyMode}).label}</strong>`;
       container.appendChild(info);
 
       const keypadCard = document.createElement('div');
@@ -2804,7 +2925,9 @@ body{
           if (!surveyColumnState[item.zone][item.blockKey]) {
             surveyColumnState[item.zone][item.blockKey] = {};
           }
-          surveyColumnState[item.zone][item.blockKey][Number(item.colNum)] = item.mode || '';
+          const loadedMode = item.mode || '';
+          if (loadedMode && !surveyModeMeta[loadedMode]) registerCustomSurveyMode(loadedMode);
+          surveyColumnState[item.zone][item.blockKey][Number(item.colNum)] = loadedMode;
         });
 
         // โหลดข้อมูลเรือ
