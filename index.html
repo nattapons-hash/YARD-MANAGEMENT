@@ -752,6 +752,32 @@ body{
 .mobile-add-mode-btn{height:34px;padding:0 10px;border:1px solid #0f766e;border-radius:7px;background:#f0fdfa;color:#0f766e;font-weight:800;cursor:pointer;}
 .survey-manage-mode-btn{height:34px;padding:0 10px;border:1px solid #cbd5e1;border-radius:7px;background:#fff;color:#334155;font-weight:800;cursor:pointer;}
 .survey-manage-mode-btn:hover{background:#f8fafc;}
+.survey-mode-modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:99999;display:flex;align-items:center;justify-content:center;padding:18px;box-sizing:border-box;}
+.survey-mode-modal{width:min(560px,96vw);max-height:min(720px,90vh);background:#fff;border-radius:16px;box-shadow:0 20px 55px rgba(15,23,42,.25);display:flex;flex-direction:column;overflow:hidden;}
+.survey-mode-modal-head{padding:18px 22px 12px;border-bottom:1px solid #e2e8f0;display:flex;align-items:center;justify-content:space-between;}
+.survey-mode-modal-title{font-size:20px;font-weight:900;color:#1e293b;}
+.survey-mode-modal-close{border:0;background:transparent;color:#94a3b8;font-size:24px;font-weight:900;cursor:pointer;line-height:1;}
+.survey-mode-modal-body{padding:16px 22px 12px;overflow:auto;}
+.survey-mode-add-row{display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:14px;}
+.survey-mode-add-input{height:40px;border:1px solid #cbd5e1;border-radius:9px;padding:0 12px;font-size:14px;outline:none;box-sizing:border-box;}
+.survey-mode-add-input:focus{border-color:#0f766e;box-shadow:0 0 0 3px rgba(15,118,110,.1);}
+.survey-mode-add-submit{height:40px;padding:0 15px;border:0;border-radius:9px;background:#059669;color:#fff;font-weight:900;cursor:pointer;white-space:nowrap;}
+.survey-mode-list-label{font-size:13px;font-weight:900;color:#475569;margin-bottom:8px;}
+.survey-mode-list{display:flex;flex-direction:column;gap:8px;}
+.survey-mode-row{min-height:52px;border:1px solid #e2e8f0;border-radius:11px;background:#f8fafc;display:grid;grid-template-columns:42px 1fr auto auto;gap:9px;align-items:center;padding:7px 9px;box-sizing:border-box;}
+.survey-mode-letter{width:36px;height:36px;border-radius:10px;background:#e0f2fe;color:#0369a1;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;}
+.survey-mode-row-name{font-size:14px;font-weight:900;color:#334155;word-break:break-word;}
+.survey-mode-system{font-size:11px;font-weight:800;color:#64748b;background:#e2e8f0;border-radius:999px;padding:5px 8px;white-space:nowrap;}
+.survey-mode-custom{font-size:11px;font-weight:800;color:#2563eb;background:#dbeafe;border-radius:999px;padding:5px 8px;white-space:nowrap;}
+.survey-mode-edit,.survey-mode-delete{width:34px;height:34px;border:0;border-radius:8px;font-size:16px;font-weight:900;cursor:pointer;}
+.survey-mode-edit{background:#dbeafe;color:#2563eb;}
+.survey-mode-delete{background:#fee2e2;color:#ef4444;}
+.survey-mode-disabled{opacity:.45;cursor:not-allowed;}
+.survey-mode-modal-note{margin-top:12px;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;color:#64748b;font-size:12px;line-height:1.5;background:#fff;}
+.survey-mode-modal-foot{padding:10px 22px 16px;display:flex;justify-content:flex-end;border-top:1px solid #f1f5f9;}
+.survey-mode-modal-foot button{height:38px;padding:0 16px;border:0;border-radius:9px;background:#f1f5f9;color:#334155;font-weight:900;cursor:pointer;}
+@media(max-width:700px){.survey-mode-modal{width:96vw;max-height:88vh;border-radius:14px}.survey-mode-modal-head{padding:15px 16px 10px}.survey-mode-modal-body{padding:13px 16px 10px}.survey-mode-modal-foot{padding:9px 16px 14px}.survey-mode-row{grid-template-columns:38px 1fr auto auto;gap:6px}.survey-mode-system,.survey-mode-custom{display:none}.survey-mode-edit,.survey-mode-delete{width:32px;height:32px}}
+
 .mobile-manage-mode-btn{width:100%;margin-top:7px;min-height:38px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#334155;font-weight:800;cursor:pointer;}
 @media(max-width:700px){.survey-add-mode-btn{height:38px;font-size:12px;padding:0 10px;}}
 </style>
@@ -1816,110 +1842,219 @@ body{
       return key;
     }
 
-    async function manageCustomSurveyMode() {
-      const mode = selectedSurveyMode;
-      if (!mode || !String(mode).startsWith('custom:') || !customSurveyModes[mode]) {
-        alert('โหมดพื้นฐาน 4 โหมดไม่สามารถแก้ไขหรือลบได้\n\nให้เลือกโหมดที่เพิ่มเอง เช่น TOYOTA, ISUZU หรือ Mazda ก่อน');
-        return;
-      }
+    function closeSurveyModeManager() {
+      const el = document.getElementById('surveyModeManagerModal');
+      if (el) el.remove();
+    }
 
-      const currentLabel = customSurveyModes[mode].label;
-      const action = prompt(
-        `จัดการโหมดสำรวจ: ${currentLabel}\n\nพิมพ์ 1 = แก้ไขชื่อโหมด\nพิมพ์ 2 = ลบโหมด`,
-        '1'
-      );
-      if (action === null) return;
+    function surveyModeManagerLetter(meta) {
+      return escapeHtml(meta && meta.mark ? meta.mark : '?');
+    }
 
-      if (String(action).trim() === '2') {
-        let usedCount = 0;
-        ['S','MID','N'].forEach(zone => {
-          const config = zoneConfigs[zone];
-          config.blocks.forEach(block => {
-            const maxCols = block.maxColLimit || config.maxCols;
-            for (let c = 1; c <= maxCols; c++) {
-              if (getSurveyColumnState(zone, block.key, c) === mode) usedCount++;
-            }
-          });
+    function renderSurveyModeManagerList(listEl) {
+      if (!listEl) return;
+      const rows = [];
+      const base = [
+        ['empty','แถวว่าง'],
+        ['out','หันออกทะเล'],
+        ['in','หันเข้าฝั่ง'],
+        ['mmt','MMT']
+      ];
+
+      base.forEach(([key,label]) => {
+        const meta = surveyModeMeta[key];
+        rows.push(`
+          <div class="survey-mode-row">
+            <div class="survey-mode-letter">${surveyModeManagerLetter(meta)}</div>
+            <div class="survey-mode-row-name">${escapeHtml(label)}</div>
+            <span class="survey-mode-system">ระบบเดิม</span>
+            <button type="button" class="survey-mode-edit survey-mode-disabled" disabled title="โหมดระบบเดิมแก้ไขไม่ได้">✎</button>
+            <button type="button" class="survey-mode-delete survey-mode-disabled" disabled title="โหมดระบบเดิมลบไม่ได้">🗑</button>
+          </div>`);
+      });
+
+      Object.entries(customSurveyModes)
+        .sort((a,b) => a[1].label.localeCompare(b[1].label, 'th'))
+        .forEach(([key,meta]) => {
+          rows.push(`
+            <div class="survey-mode-row" data-mode-key="${escapeHtmlAttr(key)}">
+              <div class="survey-mode-letter">${surveyModeManagerLetter(meta)}</div>
+              <div class="survey-mode-row-name">${escapeHtml(meta.label)}</div>
+              <span class="survey-mode-custom">เพิ่มเอง</span>
+              <button type="button" class="survey-mode-edit" data-edit-mode="${escapeHtmlAttr(key)}" title="แก้ไขชื่อโหมด">✎</button>
+              <button type="button" class="survey-mode-delete" data-delete-mode="${escapeHtmlAttr(key)}" title="ลบโหมด">🗑</button>
+            </div>`);
         });
 
-        const message = usedCount
-          ? `โหมด "${currentLabel}" ถูกใช้อยู่ ${usedCount} คอลัมน์\n\nถ้าลบ จะล้างข้อมูลโหมดนี้ออกจากพื้นที่ที่ใช้งานทั้งหมดด้วย\n\nยืนยันการลบหรือไม่?`
-          : `โหมด "${currentLabel}" ยังไม่ได้ใช้งาน\n\nยืนยันการลบโหมดนี้หรือไม่?`;
-        if (!confirm(message)) return;
+      listEl.innerHTML = rows.join('');
 
-        await flushSurveySaveQueues();
-        const clearPromises = [];
-        ['S','MID','N'].forEach(zone => {
-          let hasUsed = false;
-          const config = zoneConfigs[zone];
-          config.blocks.forEach(block => {
-            const maxCols = block.maxColLimit || config.maxCols;
-            if (!surveyColumnState[zone]) surveyColumnState[zone] = {};
-            if (!surveyColumnState[zone][block.key]) return;
-            for (let c = 1; c <= maxCols; c++) {
-              if (surveyColumnState[zone][block.key][c] === mode) {
-                surveyColumnState[zone][block.key][c] = '';
-                hasUsed = true;
-              }
-            }
-          });
-          if (hasUsed) clearPromises.push(DB.clearSurveyMode(zone, mode));
-        });
-        await Promise.allSettled(clearPromises);
+      listEl.querySelectorAll('[data-edit-mode]').forEach(btn => {
+        btn.addEventListener('click', () => editCustomSurveyMode(btn.dataset.editMode));
+      });
+      listEl.querySelectorAll('[data-delete-mode]').forEach(btn => {
+        btn.addEventListener('click', () => deleteCustomSurveyMode(btn.dataset.deleteMode));
+      });
+    }
 
-        delete customSurveyModes[mode];
-        selectedSurveyMode = 'empty';
-        renderAllYardWindows();
-        renderMobileSurveyPage();
-        return;
-      }
+    function openSurveyModeManager() {
+      closeSurveyModeManager();
 
-      if (String(action).trim() === '1') {
-        const newName = prompt(`แก้ไขชื่อโหมด\n\nชื่อเดิม: ${currentLabel}\n\nชื่อใหม่:`, currentLabel);
-        const clean = String(newName || '').trim();
-        if (!clean || clean === currentLabel) return;
+      const backdrop = document.createElement('div');
+      backdrop.id = 'surveyModeManagerModal';
+      backdrop.className = 'survey-mode-modal-backdrop';
+      backdrop.innerHTML = `
+        <div class="survey-mode-modal" role="dialog" aria-modal="true" aria-label="จัดการโหมดสำรวจ">
+          <div class="survey-mode-modal-head">
+            <div class="survey-mode-modal-title">📁 จัดการโหมดสำรวจ</div>
+            <button type="button" class="survey-mode-modal-close" id="surveyModeModalClose">×</button>
+          </div>
+          <div class="survey-mode-modal-body">
+            <div class="survey-mode-add-row">
+              <input id="surveyModeManagerInput" class="survey-mode-add-input" type="text" placeholder="กรอกชื่อโหมดใหม่..." autocomplete="off">
+              <button type="button" id="surveyModeManagerAdd" class="survey-mode-add-submit">+ เพิ่มโหมด</button>
+            </div>
+            <div class="survey-mode-list-label">รายการโหมดสำรวจทั้งหมด:</div>
+            <div id="surveyModeManagerList" class="survey-mode-list"></div>
+            <div class="survey-mode-modal-note">โหมดที่มีป้าย “ระบบเดิม” ไม่สามารถแก้ไขหรือลบได้ เพื่อป้องกันผลกระทบต่อระบบเดิม</div>
+          </div>
+          <div class="survey-mode-modal-foot">
+            <button type="button" id="surveyModeModalCloseBottom">ปิดหน้าต่าง</button>
+          </div>
+        </div>`;
 
-        const newKey = `custom:${clean}`;
-        if (surveyModeMeta[newKey] || customSurveyModes[newKey]) {
+      document.body.appendChild(backdrop);
+      const list = document.getElementById('surveyModeManagerList');
+      const input = document.getElementById('surveyModeManagerInput');
+      renderSurveyModeManagerList(list);
+
+      const add = () => {
+        const name = String(input.value || '').trim();
+        if (!name) return;
+        if (Object.values(customSurveyModes).some(m => m.label.toLowerCase() === name.toLowerCase()) ||
+            Object.values(surveyModeMeta).some(m => m.label.toLowerCase() === name.toLowerCase())) {
           alert('มีโหมดชื่อนี้อยู่แล้ว กรุณาใช้ชื่ออื่น');
           return;
         }
+        addCustomSurveyMode(name);
+        input.value = '';
+        renderSurveyModeManagerList(list);
+      };
 
-        await flushSurveySaveQueues();
-        const changesByZone = {S:[], MID:[], N:[]};
-        ['S','MID','N'].forEach(zone => {
-          const config = zoneConfigs[zone];
-          if (!surveyColumnState[zone]) surveyColumnState[zone] = {};
-          config.blocks.forEach(block => {
-            const maxCols = block.maxColLimit || config.maxCols;
-            if (!surveyColumnState[zone][block.key]) return;
-            for (let c = 1; c <= maxCols; c++) {
-              if (surveyColumnState[zone][block.key][c] === mode) {
-                surveyColumnState[zone][block.key][c] = newKey;
-                changesByZone[zone].push({zone, blockKey:block.key, colNum:c, mode:newKey});
-              }
-            }
-          });
-        });
+      document.getElementById('surveyModeManagerAdd').addEventListener('click', add);
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') add(); });
+      document.getElementById('surveyModeModalClose').addEventListener('click', closeSurveyModeManager);
+      document.getElementById('surveyModeModalCloseBottom').addEventListener('click', closeSurveyModeManager);
+      backdrop.addEventListener('click', e => { if (e.target === backdrop) closeSurveyModeManager(); });
+      setTimeout(() => input.focus(), 0);
+    }
 
-        customSurveyModes[newKey] = {
-          label: clean,
-          css: 'survey-custom',
-          headerCss: 'col-survey-custom',
-          masterCss: 'master-survey-custom',
-          mark: getCustomSurveyMark(clean)
-        };
+    async function editCustomSurveyMode(mode) {
+      if (!customSurveyModes[mode]) return;
+      const currentLabel = customSurveyModes[mode].label;
+      const newName = prompt(`แก้ไขชื่อโหมดสำรวจ\n\nชื่อเดิม: ${currentLabel}\n\nชื่อใหม่:`, currentLabel);
+      if (newName === null) return;
+      const clean = String(newName).trim();
+      if (!clean || clean === currentLabel) return;
 
-        const saves = Object.keys(changesByZone)
-          .filter(zone => changesByZone[zone].length)
-          .map(zone => DB.saveSurvey(changesByZone[zone], zone));
-        await Promise.allSettled(saves);
-
-        delete customSurveyModes[mode];
-        selectedSurveyMode = newKey;
-        renderAllYardWindows();
-        renderMobileSurveyPage();
+      if (Object.values(customSurveyModes).some(m => m.label.toLowerCase() === clean.toLowerCase() && m !== customSurveyModes[mode]) ||
+          Object.values(surveyModeMeta).some(m => m.label.toLowerCase() === clean.toLowerCase())) {
+        alert('มีโหมดชื่อนี้อยู่แล้ว กรุณาใช้ชื่ออื่น');
+        return;
       }
+
+      const newKey = `custom:${clean}`;
+      await flushSurveySaveQueues();
+      const changesByZone = {S:[], MID:[], N:[]};
+
+      ['S','MID','N'].forEach(zone => {
+        const config = zoneConfigs[zone];
+        if (!surveyColumnState[zone]) surveyColumnState[zone] = {};
+        config.blocks.forEach(block => {
+          const maxCols = block.maxColLimit || config.maxCols;
+          if (!surveyColumnState[zone][block.key]) return;
+          for (let c = 1; c <= maxCols; c++) {
+            if (surveyColumnState[zone][block.key][c] === mode) {
+              surveyColumnState[zone][block.key][c] = newKey;
+              changesByZone[zone].push({zone, blockKey:block.key, colNum:c, mode:newKey});
+            }
+          }
+        });
+      });
+
+      customSurveyModes[newKey] = {
+        label: clean,
+        css: 'survey-custom',
+        headerCss: 'col-survey-custom',
+        masterCss: 'master-survey-custom',
+        mark: getCustomSurveyMark(clean)
+      };
+
+      const saves = Object.keys(changesByZone)
+        .filter(zone => changesByZone[zone].length)
+        .map(zone => DB.saveSurvey(changesByZone[zone], zone));
+      await Promise.allSettled(saves);
+
+      delete customSurveyModes[mode];
+      selectedSurveyMode = newKey;
+      renderAllYardWindows();
+      renderMobileSurveyPage();
+
+      const list = document.getElementById('surveyModeManagerList');
+      if (list) renderSurveyModeManagerList(list);
+    }
+
+    async function deleteCustomSurveyMode(mode) {
+      if (!customSurveyModes[mode]) return;
+      const currentLabel = customSurveyModes[mode].label;
+      let usedCount = 0;
+
+      ['S','MID','N'].forEach(zone => {
+        const config = zoneConfigs[zone];
+        config.blocks.forEach(block => {
+          const maxCols = block.maxColLimit || config.maxCols;
+          for (let c = 1; c <= maxCols; c++) {
+            if (getSurveyColumnState(zone, block.key, c) === mode) usedCount++;
+          }
+        });
+      });
+
+      const message = usedCount
+        ? `โหมด "${currentLabel}" ถูกใช้อยู่ ${usedCount} คอลัมน์\n\nถ้าลบ จะล้างข้อมูลโหมดนี้ออกจากพื้นที่ที่ใช้งานทั้งหมดด้วย\n\nยืนยันการลบหรือไม่?`
+        : `โหมด "${currentLabel}" ยังไม่ได้ใช้งาน\n\nยืนยันการลบโหมดนี้หรือไม่?`;
+      if (!confirm(message)) return;
+
+      await flushSurveySaveQueues();
+      const clearPromises = [];
+      ['S','MID','N'].forEach(zone => {
+        let hasUsed = false;
+        const config = zoneConfigs[zone];
+        config.blocks.forEach(block => {
+          const maxCols = block.maxColLimit || config.maxCols;
+          if (!surveyColumnState[zone]) surveyColumnState[zone] = {};
+          if (!surveyColumnState[zone][block.key]) return;
+          for (let c = 1; c <= maxCols; c++) {
+            if (surveyColumnState[zone][block.key][c] === mode) {
+              surveyColumnState[zone][block.key][c] = '';
+              hasUsed = true;
+            }
+          }
+        });
+        if (hasUsed) clearPromises.push(DB.clearSurveyMode(zone, mode));
+      });
+      await Promise.allSettled(clearPromises);
+
+      delete customSurveyModes[mode];
+      if (selectedSurveyMode === mode) selectedSurveyMode = 'empty';
+      renderAllYardWindows();
+      renderMobileSurveyPage();
+
+      const list = document.getElementById('surveyModeManagerList');
+      if (list) renderSurveyModeManagerList(list);
+    }
+
+    // เปิดหน้าต่างจัดการโหมดสำรวจแบบรายการ คล้ายหน้าจัดการหมวดหมู่สินค้า
+    function manageCustomSurveyMode() {
+      openSurveyModeManager();
     }
 
     function getSurveyColumnState(zone, blockKey, colNum) {
