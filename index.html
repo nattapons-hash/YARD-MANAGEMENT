@@ -766,6 +766,9 @@ body{
 .survey-mode-list{display:flex;flex-direction:column;gap:8px;}
 .survey-mode-row{min-height:52px;border:1px solid #e2e8f0;border-radius:11px;background:#f8fafc;display:grid;grid-template-columns:42px 1fr auto auto;gap:9px;align-items:center;padding:7px 9px;box-sizing:border-box;}
 .survey-mode-letter{width:36px;height:36px;border-radius:10px;background:#e0f2fe;color:#0369a1;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;}
+.survey-mode-letter-inner{display:flex;width:100%;height:100%;align-items:center;justify-content:center;border-radius:10px}
+.survey-mode-letter-custom-4{background:#fce7f3;color:#be185d}.survey-mode-letter-custom-5{background:#fef3c7;color:#b45309}.survey-mode-letter-custom-6{background:#ccfbf1;color:#0f766e}.survey-mode-letter-custom-7{background:#e0e7ff;color:#4338ca}.survey-mode-letter-custom-8{background:#fae8ff;color:#a21caf}.survey-mode-letter-custom-9{background:#ecfccb;color:#4d7c0f}.survey-mode-letter-custom-10{background:#cffafe;color:#0e7490}.survey-mode-letter-custom-11{background:#ffedd5;color:#c2410c}.survey-mode-letter-custom-12{background:#ede9fe;color:#6d28d9}.survey-mode-letter-custom-13{background:#f0fdf4;color:#15803d}.survey-mode-letter-custom-14{background:#f1f5f9;color:#334155}.survey-mode-letter-custom-15{background:#fee2e2;color:#b91c1c}
+
 .survey-mode-row-name{font-size:14px;font-weight:900;color:#334155;word-break:break-word;}
 .survey-mode-system{font-size:11px;font-weight:800;color:#64748b;background:#e2e8f0;border-radius:999px;padding:5px 8px;white-space:nowrap;}
 .survey-mode-custom{font-size:11px;font-weight:800;color:#2563eb;background:#dbeafe;border-radius:999px;padding:5px 8px;white-space:nowrap;}
@@ -776,6 +779,44 @@ body{
 .survey-mode-modal-note{margin-top:12px;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;color:#64748b;font-size:12px;line-height:1.5;background:#fff;}
 .survey-mode-modal-foot{padding:10px 22px 16px;display:flex;justify-content:flex-end;border-top:1px solid #f1f5f9;}
 .survey-mode-modal-foot button{height:38px;padding:0 16px;border:0;border-radius:9px;background:#f1f5f9;color:#334155;font-weight:900;cursor:pointer;}
+
+/* ===== สีแยกแต่ละโหมดสำรวจ ===== */
+.slot.survey-custom-4{background:#fce7f3!important;border:1px solid #f9a8d4!important;color:#be185d!important}
+.slot.survey-custom-5{background:#fef3c7!important;border:1px solid #fcd34d!important;color:#b45309!important}
+.slot.survey-custom-6{background:#ccfbf1!important;border:1px solid #5eead4!important;color:#0f766e!important}
+.slot.survey-custom-7{background:#e0e7ff!important;border:1px solid #a5b4fc!important;color:#4338ca!important}
+.slot.survey-custom-8{background:#fae8ff!important;border:1px solid #e879f9!important;color:#a21caf!important}
+.slot.survey-custom-9{background:#ecfccb!important;border:1px solid #bef264!important;color:#4d7c0f!important}
+.slot.survey-custom-10{background:#cffafe!important;border:1px solid #67e8f9!important;color:#0e7490!important}
+.slot.survey-custom-11{background:#ffedd5!important;border:1px solid #fdba74!important;color:#c2410c!important}
+.slot.survey-custom-12{background:#ede9fe!important;border:1px solid #c4b5fd!important;color:#6d28d9!important}
+.slot.survey-custom-13{background:#f0fdf4!important;border:1px solid #86efac!important;color:#15803d!important}
+.slot.survey-custom-14{background:#f1f5f9!important;border:1px solid #94a3b8!important;color:#334155!important}
+.slot.survey-custom-15{background:#fee2e2!important;border:1px solid #fca5a5!important;color:#b91c1c!important}
+.col-header.col-survey-custom-4,.zone-master-col.master-survey-custom-4{color:#be185d!important;background:#fce7f3!important;border-radius:4px}
+.col-header.col-survey-custom-5,.zone-master-col.master-survey-custom-5{color:#b45309!important;background:#fef3c7!important;border-radius:4px}
+.col-header.col-survey-custom-6,.zone-master-col.master-survey-custom-6{color:#0f766e!important;background:#ccfbf1!important;border-radius:4px}
+.col-header.col-survey-custom-7,.zone-master-col.master-survey-custom-7{color:#4338ca!important;background:#e0e7ff!important;border-radius:4px}
+.col-header.col-survey-custom-8,.zone-master-col.master-survey-custom-8{color:#a21caf!important;background:#fae8ff!important;border-radius:4px}
+.col-header.col-survey-custom-9,.zone-master-col.master-survey-custom-9{color:#4d7c0f!important;background:#ecfccb!important;border-radius:4px}
+.col-header.col-survey-custom-10,.zone-master-col.master-survey-custom-10{color:#0e7490!important;background:#cffafe!important;border-radius:4px}
+.col-header.col-survey-custom-11,.zone-master-col.master-survey-custom-11{color:#c2410c!important;background:#ffedd5!important;border-radius:4px}
+.col-header.col-survey-custom-12,.zone-master-col.master-survey-custom-12{color:#6d28d9!important;background:#ede9fe!important;border-radius:4px}
+.col-header.col-survey-custom-13,.zone-master-col.master-survey-custom-13{color:#15803d!important;background:#f0fdf4!important;border-radius:4px}
+.col-header.col-survey-custom-14,.zone-master-col.master-survey-custom-14{color:#334155!important;background:#f1f5f9!important;border-radius:4px}
+.col-header.col-survey-custom-15,.zone-master-col.master-survey-custom-15{color:#b91c1c!important;background:#fee2e2!important;border-radius:4px}
+.mobile-col-btn.active-custom-4{background:#fce7f3!important;border-color:#f9a8d4!important;color:#be185d!important}
+.mobile-col-btn.active-custom-5{background:#fef3c7!important;border-color:#fcd34d!important;color:#b45309!important}
+.mobile-col-btn.active-custom-6{background:#ccfbf1!important;border-color:#5eead4!important;color:#0f766e!important}
+.mobile-col-btn.active-custom-7{background:#e0e7ff!important;border-color:#a5b4fc!important;color:#4338ca!important}
+.mobile-col-btn.active-custom-8{background:#fae8ff!important;border-color:#e879f9!important;color:#a21caf!important}
+.mobile-col-btn.active-custom-9{background:#ecfccb!important;border-color:#bef264!important;color:#4d7c0f!important}
+.mobile-col-btn.active-custom-10{background:#cffafe!important;border-color:#67e8f9!important;color:#0e7490!important}
+.mobile-col-btn.active-custom-11{background:#ffedd5!important;border-color:#fdba74!important;color:#c2410c!important}
+.mobile-col-btn.active-custom-12{background:#ede9fe!important;border-color:#c4b5fd!important;color:#6d28d9!important}
+.mobile-col-btn.active-custom-13{background:#f0fdf4!important;border-color:#86efac!important;color:#15803d!important}
+.mobile-col-btn.active-custom-14{background:#f1f5f9!important;border-color:#94a3b8!important;color:#334155!important}
+.mobile-col-btn.active-custom-15{background:#fee2e2!important;border-color:#fca5a5!important;color:#b91c1c!important}
 @media(max-width:700px){.survey-mode-modal{width:96vw;max-height:88vh;border-radius:14px}.survey-mode-modal-head{padding:15px 16px 10px}.survey-mode-modal-body{padding:13px 16px 10px}.survey-mode-modal-foot{padding:9px 16px 14px}.survey-mode-row{grid-template-columns:38px 1fr auto auto;gap:6px}.survey-mode-system,.survey-mode-custom{display:none}.survey-mode-edit,.survey-mode-delete{width:32px;height:32px}}
 
 .mobile-manage-mode-btn{width:100%;margin-top:7px;min-height:38px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#334155;font-weight:800;cursor:pointer;}
@@ -1775,6 +1816,30 @@ body{
       return name.charAt(0).toUpperCase();
     }
 
+    function getNextCustomSurveyColorIndex(excludeKey='') {
+      const used = new Set(Object.entries(customSurveyModes)
+        .filter(([key]) => key !== excludeKey)
+        .map(([,meta]) => Number(meta.colorIndex))
+        .filter(n => Number.isInteger(n)));
+      for (let i = 4; i <= 15; i++) {
+        if (!used.has(i)) return i;
+      }
+      // มีโหมดมากกว่า 12 โหมด ให้หมุนกลับมาใช้สีเดิม
+      return 4 + (Object.keys(customSurveyModes).length % 12);
+    }
+
+    function buildCustomSurveyMeta(label, colorIndex) {
+      const idx = Number.isInteger(Number(colorIndex)) ? Number(colorIndex) : getNextCustomSurveyColorIndex();
+      return {
+        label,
+        colorIndex: idx,
+        css: `survey-custom survey-custom-${idx}`,
+        headerCss: `col-survey-custom col-survey-custom-${idx}`,
+        masterCss: `master-survey-custom master-survey-custom-${idx}`,
+        mark: getCustomSurveyMark(label)
+      };
+    }
+
     function registerCustomSurveyMode(modeOrLabel) {
       let raw = String(modeOrLabel || '').trim();
       if (!raw) return '';
@@ -1783,13 +1848,8 @@ body{
       let label = key.slice(7).trim();
       if (!label) return '';
 
-      customSurveyModes[key] = {
-        label,
-        css: 'survey-custom',
-        headerCss: 'col-survey-custom',
-        masterCss: 'master-survey-custom',
-        mark: getCustomSurveyMark(label)
-      };
+      if (customSurveyModes[key]) return key;
+      customSurveyModes[key] = buildCustomSurveyMeta(label);
       return key;
     }
 
@@ -1848,7 +1908,9 @@ body{
     }
 
     function surveyModeManagerLetter(meta) {
-      return escapeHtml(meta && meta.mark ? meta.mark : '?');
+      if (!meta) return '?';
+      const cls = meta.colorIndex ? ` survey-mode-letter-custom-${meta.colorIndex}` : '';
+      return `<span class=\"survey-mode-letter-inner${cls}\">${escapeHtml(meta.mark || '?')}</span>`;
     }
 
     function renderSurveyModeManagerList(listEl) {
@@ -1981,13 +2043,8 @@ body{
         });
       });
 
-      customSurveyModes[newKey] = {
-        label: clean,
-        css: 'survey-custom',
-        headerCss: 'col-survey-custom',
-        masterCss: 'master-survey-custom',
-        mark: getCustomSurveyMark(clean)
-      };
+      const oldColorIndex = customSurveyModes[mode].colorIndex;
+      customSurveyModes[newKey] = buildCustomSurveyMeta(clean, oldColorIndex);
 
       const saves = Object.keys(changesByZone)
         .filter(zone => changesByZone[zone].length)
@@ -3023,7 +3080,10 @@ body{
       if (state.mode === 'out') return 'mobile-col-btn active-out';
       if (state.mode === 'in') return 'mobile-col-btn active-in';
       if (state.mode === 'mmt') return 'mobile-col-btn active-mmt';
-      if (state.mode && state.mode !== 'mixed') return 'mobile-col-btn active-custom';
+      if (state.mode && state.mode !== 'mixed') {
+        const meta = getSurveyModeMeta(state.mode);
+        return `mobile-col-btn active-custom-${meta && meta.colorIndex ? meta.colorIndex : 4}`;
+      }
       if (state.mode === 'mixed') return 'mobile-col-btn active-mixed';
       return 'mobile-col-btn';
     }
