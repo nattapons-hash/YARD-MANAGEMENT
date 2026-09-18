@@ -160,7 +160,7 @@ const customModes = {};
 let zone = 'S';
 let selectedBlocks = new Set(zoneConfigs.S.blocks.map(b => b.key));
 let mode = 'empty';
-const selected = new Map(); // key = zone|block|col, value = mode
+const selected = new Map(); // key = block|col, value = mode
 
 function esc(s){
   return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
@@ -261,7 +261,7 @@ function renderGrid(){
       continue;
     }
 
-    const pickedModes=usableBlocks.map(b=>selected.get(zone+'|'+b.key+'|'+c)||'');
+    const pickedModes=usableBlocks.map(b=>selected.get(b.key+'|'+c)||'');
     const allPicked=pickedModes.every(x=>x===mode);
     const mixed=pickedModes.some(Boolean) && !allPicked;
     if(allPicked) btn.classList.add(modeClass(mode));
@@ -270,9 +270,9 @@ function renderGrid(){
     btn.textContent=c;
     btn.title='แตะเพื่อเลือกคอลัมน์นี้ใน '+usableBlocks.map(b=>b.label).join(', ');
     btn.onclick=()=>{
-      const shouldClear=usableBlocks.every(b=>selected.get(zone+'|'+b.key+'|'+c)===mode);
+      const shouldClear=usableBlocks.every(b=>selected.get(b.key+'|'+c)===mode);
       usableBlocks.forEach(b=>{
-        const key=zone+'|'+b.key+'|'+c;
+        const key=b.key+'|'+c;
         if(shouldClear) selected.delete(key);
         else selected.set(key,mode);
       });
@@ -282,8 +282,8 @@ function renderGrid(){
     el.appendChild(btn);
   }
   const count=[...selected.keys()].filter(k=>{
-    const [z,bk]=k.split('|');
-    return z===zone && selectedBlocks.has(bk);
+    const bk=k.split('|')[0];
+    return selectedBlocks.has(bk);
   }).length;
   document.getElementById('count').textContent='เลือก '+count+' รายการ';
 }
@@ -303,9 +303,9 @@ function compressRanges(items){
 function buildPayload(){
   const groups=new Map();
   selected.forEach((m,key)=>{
-    const [z,bk,c]=key.split('|');
-    const gkey=z+'|'+bk+'|'+m;
-    if(!groups.has(gkey)) groups.set(gkey,{zone:z,blockKey:bk,mode:m,cols:[]});
+    const [bk,c]=key.split('|');
+    const gkey=zone+'|'+bk+'|'+m;
+    if(!groups.has(gkey)) groups.set(gkey,{zone,blockKey:bk,mode:m,cols:[]});
     groups.get(gkey).cols.push(Number(c));
   });
   return [...groups.values()].map(g=>({
@@ -340,8 +340,8 @@ document.getElementById('addCustom').onclick=()=>addCustomMode(document.getEleme
 document.getElementById('customName').addEventListener('keydown',e=>{if(e.key==='Enter') addCustomMode(e.target.value)});
 function confirmClearCurrentZone(){
   const zoneKeys=[...selected.keys()].filter(k=>{
-    const [z,bk]=k.split('|');
-    return z===zone && selectedBlocks.has(bk);
+    const [bk]=k.split('|');
+    return selectedBlocks.has(bk);
   });
   const before=zoneKeys.length;
 
@@ -432,38 +432,31 @@ function setStatus(msg,type=''){
   el.textContent=msg;
 }
 
-function confirmSaveToGas(){
-  const payload=buildPayload();
-  const changes=[...selected.entries()];
+async function saveToGas(){
+  const changes=[...selected.entries()].map(([key,m])=>{
+    const [blockKey,colNum]=key.split('|');
+    return {zone,blockKey,colNum:Number(colNum),mode:m};
+  });
   if(!changes.length){
     setStatus('ยังไม่มีข้อมูลให้บันทึก','err');
     return;
   }
 
-  const total=changes.length;
-  const detail=payload.map(g=>
-    `${g.zone} · Block ${g.blockKey} · ${modeLabel(g.mode)} · ${g.ranges.join(', ')}`
+  // ยืนยันก่อนส่งข้อมูลจริง — ระหว่างจิ้มไม่มีการยิง GAS
+  const payloadGroups=buildPayload();
+  const summaryText=payloadGroups.map(g =>
+    `Block ${g.blockKey} · ${modeLabel(g.mode)} · ${g.ranges.join(', ')}`
   ).join('\n');
 
   const ok=window.confirm(
-    `ยืนยันบันทึกข้อมูลทั้งหมด ${total} รายการ?\n\n${detail}\n\n`+
-    `เมื่อกดยืนยัน ระบบจะส่งข้อมูลขึ้น Google Sheets เพียงครั้งเดียว`
+    `ยืนยันบันทึกผลสำรวจ ${changes.length} รายการ?\n\n` +
+    summaryText +
+    `\n\nกด OK เพื่อส่งข้อมูลทั้งหมดเข้า Google Sheets ครั้งเดียว`
   );
+
   if(!ok){
-    setStatus('ยกเลิกการบันทึก — ข้อมูลที่เลือกยังอยู่ในมือถือ');
+    setStatus('ยกเลิกการบันทึก — ข้อมูลที่เลือกไว้ยังอยู่ในหน้านี้');
     return;
-  }
-
-  sendAllToGas();
-}
-
-async function sendAllToGas(){
-  const changes=[...selected.entries()].map(([key,m])=>{
-    const [z,blockKey,colNum]=key.split('|');
-    return {zone:z,blockKey,colNum:Number(colNum),mode:m};
-  });
-  if(!changes.length){
-    setStatus('ยังไม่มีข้อมูลให้บันทึก','err');return;
   }
 
   const btn=document.getElementById('save');
@@ -471,7 +464,7 @@ async function sendAllToGas(){
   btn.disabled=true;
   clearBtn.disabled=true;
   btn.textContent='☁️ กำลังบันทึก...';
-  setStatus(`กำลังส่งข้อมูล ${changes.length} รายการขึ้น Google Sheets ในครั้งเดียว...`);
+  setStatus(`กำลังส่งข้อมูล ${changes.length} รายการเข้า Google Sheets ครั้งเดียว...`);
 
   const payload={
     action:'saveSurveyCells',
@@ -479,6 +472,7 @@ async function sendAllToGas(){
   };
 
   try{
+    // ยิง GAS เพียงครั้งเดียวหลังผู้ใช้ยืนยัน
     await fetch(GAS_URL,{
       method:'POST',
       headers:{'Content-Type':'text/plain;charset=utf-8'},
@@ -487,13 +481,13 @@ async function sendAllToGas(){
       redirect:'follow'
     });
 
-    // ล้างเฉพาะข้อมูลที่ส่งสำเร็จออกจากรายการค้างในมือถือ
-    changes.forEach(x=>selected.delete(`${x.zone}|${x.blockKey}|${x.colNum}`));
+    // บันทึกสำเร็จตาม flow เดิม: เคลียร์เฉพาะรายการที่รอส่งในมือถือ
+    selected.clear();
     renderAll();
-    setStatus(`บันทึกผลสำรวจ ${changes.length} รายการเรียบร้อยแล้ว — ส่ง Google Sheets เพียง 1 ครั้ง`,'ok');
+    setStatus(`บันทึกผลสำรวจ ${changes.length} รายการเรียบร้อยแล้ว — ส่งข้อมูลครั้งเดียว`,'ok');
   }catch(err){
     console.error(err);
-    setStatus('ส่งข้อมูลไม่สำเร็จ — ข้อมูลที่เลือกยังอยู่ในมือถือ กดบันทึกใหม่ได้','err');
+    setStatus('ส่งข้อมูลไม่สำเร็จ — ข้อมูลที่เลือกไว้ยังคงอยู่ กดบันทึกอีกครั้งได้','err');
   }finally{
     btn.disabled=false;
     clearBtn.disabled=false;
@@ -501,7 +495,7 @@ async function sendAllToGas(){
   }
 }
 
-document.getElementById('save').onclick=confirmSaveToGas;
+document.getElementById('save').onclick=saveToGas;
 renderAll();
 </script>
 </body>
