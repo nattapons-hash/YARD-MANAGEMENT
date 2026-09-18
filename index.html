@@ -3108,11 +3108,22 @@ body{
       return out.join(', ');
     }
 
+    function updateMobileSaveButton() {
+      const saveBtn = document.querySelector('#mobileSurveyPage .mobile-save-survey-btn');
+      if (!saveBtn) return;
+
+      const count = mobilePendingSurvey.size;
+      saveBtn.innerText = `☁️ บันทึก / ยืนยัน (${count})`;
+      saveBtn.disabled = count === 0;
+      saveBtn.style.opacity = count ? '1' : '0.55';
+    }
+
     function renderMobileSurveyPageSummary() {
       const el = document.getElementById('mobilePendingSummary');
       if (!el) return;
 
       const items = Array.from(mobilePendingSurvey.values());
+      updateMobileSaveButton();
       const title = document.createElement('div');
       title.className = 'mobile-keypad-title';
       title.innerText = `สรุปชุดที่จะบันทึก · ${items.length} ช่อง`;
@@ -3154,7 +3165,7 @@ body{
       );
       if (!ok) return;
 
-      const saveBtn = document.querySelector('#mobileSurveyPage .mobile-action-row .mobile-view-zone-btn');
+      const saveBtn = document.querySelector('#mobileSurveyPage .mobile-action-row .mobile-save-survey-btn');
       if (saveBtn) { saveBtn.disabled = true; saveBtn.innerText = '☁️ กำลังบันทึก...'; }
 
       ['S','MID','N'].forEach(z => DB.status(z, '☁ กำลังบันทึกข้อมูลจากมือถือ...', 'busy'));
@@ -3173,6 +3184,7 @@ body{
         if (saveBtn) {
           saveBtn.disabled = false;
           saveBtn.innerText = `☁️ บันทึก / ยืนยัน (${mobilePendingSurvey.size})`;
+          saveBtn.style.opacity = '1';
         }
       }
     }
@@ -3320,6 +3332,7 @@ body{
           scheduleSurveyRender(zone);
           btn.className = getMobileColumnButtonClass(zone, c);
           renderMobileSurveyPageSummary();
+          updateMobileSaveButton();
         });
         grid.appendChild(btn);
       }
@@ -3337,7 +3350,7 @@ body{
 
       const saveBtn = document.createElement('button');
       saveBtn.type = 'button';
-      saveBtn.className = 'mobile-view-zone-btn';
+      saveBtn.className = 'mobile-view-zone-btn mobile-save-survey-btn';
       saveBtn.innerText = `☁️ บันทึก / ยืนยัน (${mobilePendingSurvey.size})`;
       saveBtn.disabled = mobilePendingSurvey.size === 0;
       saveBtn.style.opacity = mobilePendingSurvey.size ? '1' : '0.55';
@@ -3363,6 +3376,8 @@ body{
           Array.from(mobilePendingSurvey.keys()).forEach(key => {
             if (key.startsWith(`${clearZone}|`)) mobilePendingSurvey.delete(key);
           });
+          renderMobileSurveyPageSummary();
+          updateMobileSaveButton();
           setTimeout(renderMobileSurveyPage, 80);
         }
       });
