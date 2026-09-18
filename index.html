@@ -691,6 +691,15 @@ body{
 .mobile-zone-btn.active{background:#dbeafe;border-color:#60a5fa;color:#1d4ed8;box-shadow:0 1px 4px rgba(37,99,235,.12);}
 .mobile-mode-select{width:100%;height:36px;border:1px solid #cbd5e1;border-radius:7px;background:#fff;color:#334155;font-size:14px;font-weight:700;padding:0 8px;}
 .mobile-zone-info{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;border-radius:7px;padding:5px 7px;margin-bottom:6px;font-size:11px;text-align:center;line-height:15px;}
+.mobile-block-group{background:#fff;border:1px solid #dbe3ec;border-radius:10px;padding:7px;margin-bottom:6px;box-shadow:0 2px 7px rgba(31,48,71,.05);}
+.mobile-block-buttons{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px;}
+.mobile-block-btn{min-height:34px;border:1px solid #cbd5e1;border-radius:7px;background:#f8fafc;color:#475569;font-size:12px;font-weight:800;cursor:pointer;padding:0 3px;touch-action:manipulation;}
+.mobile-block-btn.active{background:#dbeafe;border-color:#60a5fa;color:#1d4ed8;box-shadow:0 1px 4px rgba(37,99,235,.12);}
+.mobile-block-btn:active{transform:scale(.97);}
+@media(max-width:380px){
+  .mobile-block-buttons{gap:4px;}
+  .mobile-block-btn{min-height:32px;font-size:11px;}
+}
 .mobile-keypad-title{font-size:12px;font-weight:800;margin-bottom:5px;color:#334155;line-height:16px;}
 .mobile-keypad-grid{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:4px;}
 .mobile-col-btn{height:31px;min-width:0;border:1px solid #cbd5e1;border-radius:6px;background:#f8fafc;color:#334155;font-size:12px;font-weight:800;padding:0;box-shadow:0 1px 3px rgba(31,48,71,.06);cursor:pointer;touch-action:manipulation;}
@@ -3070,6 +3079,23 @@ body{
     // ============================================================
     let mobileSurveyZone = 'S';
 
+    // มือถือเริ่มต้นเลือกทุกบล็อกของโซนที่เปิดอยู่
+    // ผู้ใช้สามารถจิ้มบล็อกที่ไม่ต้องการเพื่อเอาออกได้
+    const mobileSelectedBlocks = {
+      S: new Set(zoneConfigs.S.blocks.map(b => b.key)),
+      MID: new Set(zoneConfigs.MID.blocks.map(b => b.key)),
+      N: new Set(zoneConfigs.N.blocks.map(b => b.key))
+    };
+
+    function resetMobileSelectedBlocks(zone) {
+      mobileSelectedBlocks[zone] = new Set(zoneConfigs[zone].blocks.map(b => b.key));
+    }
+
+    function getMobileSelectedBlocks(zone) {
+      if (!mobileSelectedBlocks[zone]) resetMobileSelectedBlocks(zone);
+      return mobileSelectedBlocks[zone];
+    }
+
     // ข้อมูลที่ผู้ใช้เลือกจากหน้ามือถือจะเก็บไว้ในหน่วยความจำของหน้าเว็บก่อน
     // ยังไม่ส่ง Google Sheets จนกว่าจะกด "บันทึก / ยืนยัน"
     const mobilePendingSurvey = new Map();
@@ -3223,12 +3249,57 @@ body{
         btn.innerHTML = `${label}<small>(${code})</small>`;
         btn.addEventListener('click', () => {
           mobileSurveyZone = key;
+          resetMobileSelectedBlocks(key);
           renderMobileSurveyPage();
         });
         zoneButtons.appendChild(btn);
       });
       zoneGroup.appendChild(zoneButtons);
       container.appendChild(zoneGroup);
+
+      // ==========================================================
+      // เลือกบล็อก: ค่าเริ่มต้นเลือกทุกบล็อก ผู้ใช้จิ้มเอาบล็อกออกเองได้
+      // ==========================================================
+      const blockGroup = document.createElement('div');
+      blockGroup.className = 'mobile-block-group';
+
+      const blockLabel = document.createElement('div');
+      blockLabel.className = 'mobile-section-label';
+      blockLabel.innerText = 'เลือกบล็อก (เริ่มต้นเลือกทุกบล็อก)';
+      blockGroup.appendChild(blockLabel);
+
+      const blockButtons = document.createElement('div');
+      blockButtons.className = 'mobile-block-buttons';
+
+      const selectedBlocks = getMobileSelectedBlocks(mobileSurveyZone);
+
+      config.blocks.forEach(block => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'mobile-block-btn' + (selectedBlocks.has(block.key) ? ' active' : '');
+        btn.innerText = `Block ${block.key}`;
+
+        btn.addEventListener('click', () => {
+          if (selectedBlocks.has(block.key)) {
+            // ไม่ให้เหลือ 0 บล็อก
+            if (selectedBlocks.size === 1) {
+              setStatus('ต้องเลือกอย่างน้อย 1 บล็อก', 'err');
+              return;
+            }
+            selectedBlocks.delete(block.key);
+          } else {
+            selectedBlocks.add(block.key);
+          }
+
+          // เปลี่ยนเฉพาะการเลือกบล็อก ไม่ส่ง GAS และไม่ล้างรายการที่ค้างบันทึก
+          renderMobileSurveyPage();
+        });
+
+        blockButtons.appendChild(btn);
+      });
+
+      blockGroup.appendChild(blockButtons);
+      container.appendChild(blockGroup);
 
       const modeGroup = document.createElement('div');
       modeGroup.className = 'mobile-mode-group';
@@ -3280,7 +3351,8 @@ body{
 
       const info = document.createElement('div');
       info.className = 'mobile-zone-info';
-      info.innerHTML = `<strong>${getMobileZoneName(mobileSurveyZone)}</strong> · ${config.maxCols} คอลัมน์ · โหมด <strong>${(getSurveyModeMeta(selectedSurveyMode) || {label:selectedSurveyMode}).label}</strong>`;
+      const selectedBlockCount = getMobileSelectedBlocks(mobileSurveyZone).size;
+      info.innerHTML = `<strong>${getMobileZoneName(mobileSurveyZone)}</strong> · ${config.maxCols} คอลัมน์ · เลือก ${selectedBlockCount}/${config.blocks.length} บล็อก · โหมด <strong>${(getSurveyModeMeta(selectedSurveyMode) || {label:selectedSurveyMode}).label}</strong>`;
       container.appendChild(info);
 
       const keypadCard = document.createElement('div');
@@ -3306,8 +3378,16 @@ body{
           if (!surveyColumnState[zone]) surveyColumnState[zone] = {};
 
           const targets = [];
-          const eligibleBlocks = config.blocks.filter(block => c <= (block.maxColLimit || config.maxCols));
-          const allSame = eligibleBlocks.length > 0 && eligibleBlocks.every(block => getSurveyColumnState(zone, block.key, c) === selectedSurveyMode);
+          const selectedBlocksNow = getMobileSelectedBlocks(zone);
+          const eligibleBlocks = config.blocks.filter(block =>
+            selectedBlocksNow.has(block.key) &&
+            c <= (block.maxColLimit || config.maxCols)
+          );
+          if (!eligibleBlocks.length) {
+            setStatus('กรุณาเลือกอย่างน้อย 1 บล็อกก่อนจิ้มคอลัมน์', 'err');
+            return;
+          }
+          const allSame = eligibleBlocks.every(block => getSurveyColumnState(zone, block.key, c) === selectedSurveyMode);
           const newState = allSame ? '' : selectedSurveyMode;
 
           eligibleBlocks.forEach(block => {
