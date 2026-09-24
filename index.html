@@ -1235,7 +1235,7 @@ body{
       if (zone === 'MOBILE') {
         clearGroup.style.display = 'none';
         renderMobileSurveyPage();
-      } else if (zone !== 'SUMMARY' && zone !== 'EMPTYSUMMARY') {
+      } else if (zone !== 'SUMMARY' && zone !== 'EMPTYSUMMARY' && zone !== 'CARSUMMARY') {
         document.getElementById('targetZone').value = zone;
         updateTargetBlockDropdowns();
         clearGroup.style.display = 'flex';
@@ -3724,6 +3724,11 @@ body{
           renderYardWindow(activeCurrentWindow);
         } else {
           renderYardWindow('S');
+        }
+        if (activeCurrentWindow === 'EMPTYSUMMARY') {
+          renderEmptySurveySummaryPage();
+        } else if (activeCurrentWindow === 'CARSUMMARY') {
+          renderCarSurveySummaryPage();
         }
         renderMobileSurveyPage();
         updateVesselLegend();
