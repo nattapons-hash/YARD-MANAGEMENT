@@ -832,6 +832,30 @@ body{
 @media(max-width:700px){.survey-add-mode-btn{height:38px;font-size:12px;padding:0 10px;}}
 </style>
 
+
+<style id="car-survey-summary-css">
+.car-survey-summary-card{background:#fff;color:#334155;border:1px solid #d7e0ea;border-radius:14px;padding:18px;box-shadow:0 8px 24px rgba(31,48,71,.08);}
+.car-survey-summary-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;padding-bottom:12px;border-bottom:2px solid #e2e8f0;}
+.car-survey-summary-title{font-size:18px;font-weight:900;color:#1e293b;}
+.car-survey-summary-sub{font-size:12px;color:#64748b;margin-top:3px;}
+.car-survey-mode-select{height:38px;min-width:190px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;color:#334155;font-weight:800;padding:0 10px;}
+.car-survey-zone{border:1px solid #bfdbfe;background:#eff6ff;border-radius:10px;padding:12px;margin:10px 0;}
+.car-survey-zone-title{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:900;color:#1e40af;border-bottom:1px solid #bfdbfe;padding-bottom:8px;margin-bottom:8px;}
+.car-survey-row{display:grid;grid-template-columns:minmax(180px,1fr) minmax(150px,auto) minmax(90px,auto);gap:10px;align-items:center;padding:8px 0;border-bottom:1px dashed #cbd5e1;font-size:13px;}
+.car-survey-row:last-child{border-bottom:0;}
+.car-survey-range{font-weight:800;color:#334155;}
+.car-survey-rows{color:#52657d;}
+.car-survey-count{font-weight:900;color:#1d4ed8;text-align:right;white-space:nowrap;}
+.car-survey-total{margin-top:10px;padding:12px 14px;background:#1d4ed8;color:#fff;border-radius:8px;display:flex;justify-content:space-between;align-items:center;font-weight:900;}
+.car-survey-grand{margin-top:12px;padding:16px;background:#0f766e;color:#fff;border-radius:9px;display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:17px;}
+.car-survey-none{color:#94a3b8;font-size:12px;padding:7px 0;}
+@media(max-width:700px){
+  .car-survey-row{grid-template-columns:1fr;gap:3px;}
+  .car-survey-count{text-align:left;}
+  .car-survey-mode-select{width:100%;min-width:0;}
+}
+</style>
+
 </head>
 <body>
 
@@ -845,6 +869,7 @@ body{
         <button class="window-launch-btn" id="launch-btn-N" onclick="switchWindow('N')">📂 ฝั่งเหนือ(N)</button>
         <button class="window-launch-btn mobile-select-launch" id="launch-btn-MOBILE" onclick="switchWindow('MOBILE')">📱 เลือกพื้นที่โดยมือถือ</button>
         <button class="window-launch-btn" id="launch-btn-EMPTYSUMMARY" onclick="switchWindow('EMPTYSUMMARY')">📊 สรุปแถวว่าง</button>
+        <button class="window-launch-btn" id="launch-btn-CARSUMMARY" onclick="switchWindow('CARSUMMARY')">🚘 สรุปการใส่รถ</button>
         <button class="window-launch-btn" id="launch-btn-SUMMARY" onclick="switchWindow('SUMMARY')">📊 หน้าสรุปข้อมูลเรือ</button>
       </div>
     </div>
@@ -1061,6 +1086,20 @@ body{
       </div>
     </div>
 
+    <!-- WINDOW CAR SURVEY SUMMARY -->
+    <div class="zone-window" id="window-CARSUMMARY">
+      <div class="window-chrome">
+        <div class="window-title-area">
+          <div class="window-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+          <span class="window-title">🚘 หน้าต่าง: สรุปการใส่รถ</span>
+        </div>
+        <div class="window-actions"><button class="btn-minimize">_</button></div>
+      </div>
+      <div class="window-body">
+        <div class="summary-container" id="carSurveySummaryContent"></div>
+      </div>
+    </div>
+
     <!-- WINDOW ZONE SUMMARY -->
     <div class="zone-window" id="window-SUMMARY">
       <div class="window-chrome">
@@ -1183,7 +1222,7 @@ body{
     let activeCurrentWindow = 'S';
 
     function switchWindow(zone) {
-      ['S', 'MID', 'N', 'MOBILE', 'EMPTYSUMMARY', 'SUMMARY'].forEach(z => {
+      ['S', 'MID', 'N', 'MOBILE', 'EMPTYSUMMARY', 'CARSUMMARY', 'SUMMARY'].forEach(z => {
         document.getElementById(`window-${z}`).classList.remove('active');
         document.getElementById(`launch-btn-${z}`).classList.remove('active');
       });
@@ -1206,6 +1245,9 @@ body{
       } else if (zone === 'EMPTYSUMMARY') {
         clearGroup.style.display = 'none';
         renderEmptySurveySummaryPage();
+      } else if (zone === 'CARSUMMARY') {
+        clearGroup.style.display = 'none';
+        renderCarSurveySummaryPage();
       } else {
         clearGroup.style.display = 'none';
         renderSummaryPage();
@@ -2957,6 +2999,198 @@ body{
       const grand = document.createElement('div');
       grand.className = 'empty-survey-grand';
       grand.innerHTML = `<span>🚘 รวมทุกโซน — ${grandColumns} คอลัมน์ว่าง</span><span>${grandTotal} คัน</span>`;
+      card.appendChild(grand);
+      container.appendChild(card);
+    }
+
+
+    // --- หน้าสรุปการใส่รถจากโหมดสำรวจ ---
+    function getSurveyModeSummaryRows(zone, mode) {
+      const result = [];
+      const config = zoneConfigs[zone];
+      if (!config) return result;
+
+      config.blocks.forEach(block => {
+        const maxCols = block.maxColLimit || config.maxCols;
+        const sizeEl = document.getElementById('vehicleSize');
+        const size = sizeEl ? sizeEl.value : 'pickup';
+        const rowsCount = block.rows || (size === 'pickup' ? block.rowsPickup : block.rowsSedan);
+
+        const activeCols = [];
+        for (let c = 1; c <= maxCols; c++) {
+          if (getSurveyColumnState(zone, block.key, c) === mode) activeCols.push(c);
+        }
+        if (!activeCols.length) return;
+
+        let start = activeCols[0];
+        let prev = activeCols[0];
+
+        const pushRange = (rangeStart, rangeEnd) => {
+          const rowGroups = [];
+          let rowStart = null;
+          let rowPrev = null;
+
+          for (let r = 1; r <= rowsCount; r++) {
+            let usableEveryColumn = true;
+            for (let c = rangeStart; c <= rangeEnd; c++) {
+              if (block.heavyCustom && block.heavyCustom(c, r)) {
+                usableEveryColumn = false;
+                break;
+              }
+            }
+
+            if (usableEveryColumn) {
+              if (rowStart === null) {
+                rowStart = r;
+                rowPrev = r;
+              } else if (r === rowPrev + 1) {
+                rowPrev = r;
+              } else {
+                rowGroups.push(rowStart === rowPrev ? `${rowStart}` : `${rowStart}-${rowPrev}`);
+                rowStart = r;
+                rowPrev = r;
+              }
+            } else if (rowStart !== null) {
+              rowGroups.push(rowStart === rowPrev ? `${rowStart}` : `${rowStart}-${rowPrev}`);
+              rowStart = null;
+              rowPrev = null;
+            }
+          }
+          if (rowStart !== null) {
+            rowGroups.push(rowStart === rowPrev ? `${rowStart}` : `${rowStart}-${rowPrev}`);
+          }
+
+          let exactCapacity = 0;
+          for (let c = rangeStart; c <= rangeEnd; c++) {
+            for (let r = 1; r <= rowsCount; r++) {
+              if (!(block.heavyCustom && block.heavyCustom(c, r))) exactCapacity++;
+            }
+          }
+
+          result.push({
+            block: block.key,
+            startCol: rangeStart,
+            endCol: rangeEnd,
+            rows: rowGroups.length ? rowGroups.join(', ') : '-',
+            capacity: exactCapacity
+          });
+        };
+
+        for (let i = 1; i <= activeCols.length; i++) {
+          const current = activeCols[i];
+          if (current === prev + 1) {
+            prev = current;
+            continue;
+          }
+          pushRange(start, prev);
+          if (current !== undefined) {
+            start = current;
+            prev = current;
+          }
+        }
+      });
+
+      return result;
+    }
+
+    function renderCarSurveySummaryPage() {
+      const container = document.getElementById('carSurveySummaryContent');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const availableModes = [
+        ['empty', 'แถวว่าง'],
+        ['out', 'หันออกทะเล'],
+        ['in', 'หันเข้าฝั่ง'],
+        ['mmt', 'MMT'],
+        ...Object.entries(customSurveyModes)
+          .sort((a,b) => a[1].label.localeCompare(b[1].label, 'th'))
+          .map(([key, meta]) => [key, meta.label])
+      ];
+
+      let mode = selectedSurveyMode || 'empty';
+      if (!availableModes.some(([key]) => key === mode)) mode = 'empty';
+
+      const card = document.createElement('div');
+      card.className = 'car-survey-summary-card';
+
+      const head = document.createElement('div');
+      head.className = 'car-survey-summary-head';
+      head.innerHTML = `
+        <div>
+          <div class="car-survey-summary-title">🚘 สรุปการใส่รถ</div>
+          <div class="car-survey-summary-sub">แสดงว่าโหมดสำรวจที่เลือกอยู่ที่ Block/คอลัมน์ใด มีแถวใดบ้าง และรวมทั้งหมดกี่คัน</div>
+        </div>
+        <div>
+          <select id="carSurveySummaryMode" class="car-survey-mode-select">
+            ${availableModes.map(([key,label]) => `<option value="${escapeHtmlAttr(key)}">${escapeHtml(label)}</option>`).join('')}
+          </select>
+        </div>`;
+      card.appendChild(head);
+
+      const modeSelect = head.querySelector('#carSurveySummaryMode');
+      modeSelect.value = mode;
+      modeSelect.onchange = () => {
+        selectedSurveyMode = modeSelect.value;
+        renderCarSurveySummaryPage();
+      };
+
+      const meta = getSurveyModeMeta(mode) || {label: mode};
+      let grandTotal = 0;
+      let grandColumns = 0;
+      let grandRanges = 0;
+      const zoneNames = {S:'ฝั่งใต้ (S)', MID:'หน้าตึก (MID)', N:'ฝั่งเหนือ (N)'};
+
+      ['S','MID','N'].forEach(zone => {
+        const rows = getSurveyModeSummaryRows(zone, mode);
+        const zoneBox = document.createElement('div');
+        zoneBox.className = 'car-survey-zone';
+
+        const zoneTotal = rows.reduce((sum, r) => sum + r.capacity, 0);
+        const zoneColumns = rows.reduce((sum, r) => sum + (r.endCol - r.startCol + 1), 0);
+
+        zoneBox.innerHTML = `
+          <div class="car-survey-zone-title">
+            <span>📍 โซน ${zoneNames[zone]}</span>
+            <span>${zoneTotal} คัน</span>
+          </div>`;
+
+        if (!rows.length) {
+          const none = document.createElement('div');
+          none.className = 'car-survey-none';
+          none.textContent = `ยังไม่มีการใส่รถในโหมด "${meta.label}" ในโซนนี้`;
+          zoneBox.appendChild(none);
+        } else {
+          rows.forEach(r => {
+            const row = document.createElement('div');
+            row.className = 'car-survey-row';
+            const colText = r.startCol === r.endCol
+              ? `คอลัมน์ ${r.startCol}`
+              : `คอลัมน์ ${r.startCol} ถึง ${r.endCol}`;
+            row.innerHTML = `
+              <div class="car-survey-range"><strong>Block ${escapeHtml(r.block)}</strong> — ${colText}</div>
+              <div class="car-survey-rows">แถว ${escapeHtml(r.rows)}</div>
+              <div class="car-survey-count">${r.capacity} คัน</div>`;
+            zoneBox.appendChild(row);
+          });
+        }
+
+        const total = document.createElement('div');
+        total.className = 'car-survey-total';
+        total.innerHTML = `<span>รวมโซน ${zone}</span><span>${zoneTotal} คัน</span>`;
+        zoneBox.appendChild(total);
+        card.appendChild(zoneBox);
+
+        grandTotal += zoneTotal;
+        grandColumns += zoneColumns;
+        grandRanges += rows.length;
+      });
+
+      const grand = document.createElement('div');
+      grand.className = 'car-survey-grand';
+      grand.innerHTML = `
+        <span>🚘 รวมโหมด "${escapeHtml(meta.label)}" — ${grandColumns} คอลัมน์ / ${grandRanges} ช่วง</span>
+        <span>${grandTotal} คัน</span>`;
       card.appendChild(grand);
       container.appendChild(card);
     }
