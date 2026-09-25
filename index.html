@@ -142,7 +142,7 @@
 .col-header .col-check{width:12px;height:12px;margin:0;cursor:pointer;accent-color:#16a34a;}
 .col-header .col-number{line-height:11px;}
 .col-header.col-empty{color:#15803d;background:#dcfce7;border-radius:4px;}
-/* หัวคอลัมน์รวมระดับโซน: ติ๊กครั้งเดียวเลือกคอลัมน์เดียวกันทุกบล็อค */
+
 .zone-survey-header{background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:8px 10px;margin-bottom:10px;overflow-x:auto;}
 .zone-survey-header-title{font-size:12px;font-weight:bold;color:#334155;margin-bottom:6px;}
 .zone-master-col-row{display:flex;gap:2px;width:max-content;padding-left:18px;}
@@ -179,8 +179,8 @@
   display:flex !important;
   align-items:center !important;
   justify-content:center !important;
-  font-weight:900 !important;
-  font-size:16px !important;
+  font-weight:500 !important;
+  font-size:11px !important;
 }
 .slot.survey-empty{
   background:#dcfce7 !important; border:1px solid #86efac !important;
@@ -197,8 +197,9 @@
 .slot.survey-mmt{
   background:#f3e8ff !important; border:1px solid #c084fc !important;
   color:#7e22ce !important;
-  font-size:12px !important; line-height:1 !important;
+  font-size:11px !important; line-height:1 !important;
   overflow:hidden !important; white-space:nowrap !important;
+  font-weight:400 !important;
 }
 .col-header.col-survey-empty{color:#15803d;background:#dcfce7;border-radius:4px;}
 .col-header.col-survey-out{color:#1d4ed8;background:#dbeafe;border-radius:4px;}
@@ -212,14 +213,17 @@
 
 
 <style id="survey-visual-fix">
-/* เครื่องหมายสำรวจ: M เล็ก บาง */
+.slot.survey-marked{
+  font-size:10px !important;
+  font-weight:500 !important;
+  line-height:1 !important;
+}
 .slot.survey-mmt{
-  font-size:9px !important;
-  font-weight:400 !important;
+  font-size:10px !important;
+  font-weight:500 !important;
   line-height:1 !important;
   letter-spacing:0 !important;
 }
-/* ลูกศรเป็นหัวสามเหลี่ยม + หางสั้น */
 .slot.survey-out,.slot.survey-in{
   font-size:0 !important;
 }
@@ -228,12 +232,12 @@
   display:block;
   width:0;
   height:0;
-  border-left:4px solid transparent;
-  border-right:4px solid transparent;
+  border-left:3.5px solid transparent;
+  border-right:3.5px solid transparent;
 }
 .slot.survey-out::after,.slot.survey-in::after{display:none !important;}
-.slot.survey-out::before{border-bottom:6px solid currentColor;}
-.slot.survey-in::before{border-top:6px solid currentColor;}
+.slot.survey-out::before{border-bottom:5.5px solid currentColor;}
+.slot.survey-in::before{border-top:5.5px solid currentColor;}
 </style>
 
 <style id="empty-survey-summary-css">
@@ -268,7 +272,6 @@
   --shadow:0 8px 24px rgba(31,48,71,.08);
 }
 
-/* ภาพรวม */
 body{
   background:linear-gradient(180deg,#edf3f8 0%,#f7f9fc 100%) !important;
   color:var(--text) !important;
@@ -281,14 +284,12 @@ body > *{
   max-width:1500px;
 }
 
-/* แถบหัวหน้า */
 header, .header, .topbar{
   background:#fff !important;
   border-bottom:1px solid var(--line) !important;
   box-shadow:0 2px 12px rgba(31,48,71,.05) !important;
 }
 
-/* ปุ่ม/แท็บโซน */
 .zone-tabs, .tabs{
   gap:8px !important;
   padding:10px !important;
@@ -317,7 +318,6 @@ header, .header, .topbar{
   box-shadow:0 5px 14px rgba(37,99,235,.22) !important;
 }
 
-/* toolbar สำรวจ */
 .survey-mode-toolbar{
   display:flex !important;
   align-items:center !important;
@@ -376,7 +376,6 @@ header, .header, .topbar{
   box-shadow:0 5px 12px rgba(124,58,237,.20) !important;
 }
 
-/* summary */
 .survey-capacity{
   margin:0 0 12px !important;
   padding:10px 14px !important;
@@ -388,7 +387,6 @@ header, .header, .topbar{
   box-shadow:0 3px 10px rgba(22,163,74,.05) !important;
 }
 
-/* หัวเลือกคอลัมน์ */
 .zone-survey-header{
   margin:0 0 14px !important;
   padding:10px 12px !important;
@@ -407,7 +405,6 @@ header, .header, .topbar{
   padding-top:8px !important;
 }
 
-/* การ์ด Block */
 .block-container, .yard-block, .block-section{
   background:#fff !important;
   border:1px solid var(--line) !important;
@@ -423,7 +420,6 @@ header, .header, .topbar{
   font-weight:800 !important;
 }
 
-/* ตารางแปลน */
 .slot{
   border-radius:3px !important;
   transition:background .12s ease, transform .12s ease !important;
@@ -443,7 +439,6 @@ header, .header, .topbar{
   accent-color:#2563eb !important;
 }
 
-/* สีสถานะ */
 .slot.survey-empty{
   background:#dcfce7 !important;
   border-color:#86efac !important;
@@ -465,7 +460,6 @@ header, .header, .topbar{
   color:#7c3aed !important;
 }
 
-/* สรุปหน้าแถวว่าง */
 .summary-card, .survey-summary-card{
   background:#fff !important;
   border:1px solid var(--line) !important;
@@ -476,7 +470,6 @@ header, .header, .topbar{
 
 
 <style id="wide-window-layout">
-/* ขยายหน้าต่างแปลนให้ใช้พื้นที่จอเต็มขึ้น */
 .zone-window{
   width:calc(100vw - 48px) !important;
   max-width:none !important;
@@ -494,7 +487,6 @@ header, .header, .topbar{
   min-width:100% !important;
 }
 
-/* ให้แถบด้านบนไม่ดูอัดและใช้พื้นที่จอ */
 body{
   overflow-x:hidden !important;
 }
@@ -504,12 +496,10 @@ body{
   box-sizing:border-box !important;
 }
 
-/* เว้นพื้นที่ให้แปลนหายใจมากขึ้น */
 .block-container, .yard-block, .block-section{
   margin-bottom:16px !important;
 }
 
-/* บนจอเล็กให้ยังไม่ล้นออกนอกจอ */
 @media (max-width:900px){
   .zone-window{
     width:calc(100vw - 20px) !important;
@@ -629,7 +619,6 @@ body{
 </style>
 
 <style id="final-block-checkbox-layout">
-/* ===== BLOCK HEADER: คืน checkbox ขนาดเดิม ===== */
 .col-header{
   width:18px !important;
   min-width:18px !important;
@@ -752,7 +741,7 @@ body{
 <style id="dynamic-survey-mode-css">
 .survey-add-mode-btn{height:36px;padding:0 12px;border:1px solid #0f766e;border-radius:8px;background:#f0fdfa;color:#0f766e;font-weight:800;cursor:pointer;white-space:nowrap;}
 .survey-add-mode-btn:hover{background:#ccfbf1;}
-.slot.survey-custom{background:#e0f2fe !important;border:1px solid #7dd3fc !important;color:#0c4a6e !important;font-size:11px !important;font-weight:800 !important;line-height:1 !important;}
+.slot.survey-custom{background:#e0f2fe !important;border:1px solid #7dd3fc !important;color:#0c4a6e !important;font-size:10px !important;font-weight:500 !important;line-height:1 !important;}
 .col-header.col-survey-custom{color:#0c4a6e;background:#e0f2fe;border-radius:4px;}
 .zone-master-col.master-survey-custom{color:#0c4a6e;background:#e0f2fe;border-radius:4px;}
 .mobile-col-btn.active-custom{background:#e0f2fe;border-color:#7dd3fc;color:#0c4a6e;}
@@ -789,7 +778,6 @@ body{
 .survey-mode-modal-foot{padding:10px 22px 16px;display:flex;justify-content:flex-end;border-top:1px solid #f1f5f9;}
 .survey-mode-modal-foot button{height:38px;padding:0 16px;border:0;border-radius:9px;background:#f1f5f9;color:#334155;font-weight:900;cursor:pointer;}
 
-/* ===== สีแยกแต่ละโหมดสำรวจ ===== */
 .slot.survey-custom-4{background:#fce7f3!important;border:1px solid #f9a8d4!important;color:#be185d!important}
 .slot.survey-custom-5{background:#fef3c7!important;border:1px solid #fcd34d!important;color:#b45309!important}
 .slot.survey-custom-6{background:#ccfbf1!important;border:1px solid #5eead4!important;color:#0f766e!important}
@@ -839,20 +827,38 @@ body{
 .car-survey-summary-title{font-size:18px;font-weight:900;color:#1e293b;}
 .car-survey-summary-sub{font-size:12px;color:#64748b;margin-top:3px;}
 .car-survey-mode-select{height:38px;min-width:190px;border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;color:#334155;font-weight:800;padding:0 10px;}
-.car-survey-zone{border:1px solid #bfdbfe;background:#eff6ff;border-radius:10px;padding:12px;margin:10px 0;}
-.car-survey-zone-title{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:900;color:#1e40af;border-bottom:1px solid #bfdbfe;padding-bottom:8px;margin-bottom:8px;}
-.car-survey-row{display:grid;grid-template-columns:minmax(180px,1fr) minmax(150px,auto) minmax(90px,auto);gap:10px;align-items:center;padding:8px 0;border-bottom:1px dashed #cbd5e1;font-size:13px;}
+.car-survey-zone{border:1px solid #bfdbfe;background:#eff6ff;border-radius:10px;padding:12px;margin:12px 0;}
+.car-survey-zone-title{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:900;color:#1e40af;border-bottom:1px solid #bfdbfe;padding-bottom:8px;margin-bottom:8px;font-size:16px;}
+.car-survey-mode-section{margin:10px 0 6px;padding:8px 10px;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;}
+.car-survey-mode-title{font-weight:800;color:#0f172a;font-size:14px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;}
+.car-survey-row{display:grid;grid-template-columns:minmax(180px,1fr) minmax(150px,auto) minmax(90px,auto);gap:10px;align-items:center;padding:6px 0;border-bottom:1px dashed #e2e8f0;font-size:13px;}
 .car-survey-row:last-child{border-bottom:0;}
 .car-survey-range{font-weight:800;color:#334155;}
 .car-survey-rows{color:#52657d;}
 .car-survey-count{font-weight:900;color:#1d4ed8;text-align:right;white-space:nowrap;}
 .car-survey-total{margin-top:10px;padding:12px 14px;background:#1d4ed8;color:#fff;border-radius:8px;display:flex;justify-content:space-between;align-items:center;font-weight:900;}
 .car-survey-grand{margin-top:12px;padding:16px;background:#0f766e;color:#fff;border-radius:9px;display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:17px;}
-.car-survey-none{color:#94a3b8;font-size:12px;padding:7px 0;}
+.car-survey-none{color:#94a3b8;font-size:12px;padding:4px 0;}
 @media(max-width:700px){
   .car-survey-row{grid-template-columns:1fr;gap:3px;}
   .car-survey-count{text-align:left;}
   .car-survey-mode-select{width:100%;min-width:0;}
+}
+</style>
+
+<style id="custom-slot-font-override">
+.slot.survey-marked{
+  font-family: "Segoe UI", Tahoma, sans-serif !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+}
+.slot.survey-mmt{
+  font-size: 10px !important;
+  font-weight: 500 !important;
+}
+.slot.survey-out, .slot.survey-in{
+  font-size: 0 !important;
+  font-weight: 400 !important;
 }
 </style>
 
@@ -1427,7 +1433,6 @@ body{
       ['S', 'MID', 'N'].forEach(z => saveAndCalculateZoneEmpty(z));
     }
 
-    // --- ระบบจัดการช่วงแถวว่างแบบ Dynamic ---
     function addZoneEmptyRange(zone) {
       emptyRangeCounter++;
       const id = emptyRangeCounter;
@@ -1520,7 +1525,6 @@ body{
       return false;
     }
 
-    // ฟังก์ชันคำนวณความจุแถวว่างประจำโซน (ส่งคืนค่าสรุปเป็น Object)
     function calculateZoneEmptyDetails(zone) {
       const config = zoneConfigs[zone];
       const vehicleSize = document.getElementById('vehicleSize').value;
@@ -1611,7 +1615,6 @@ body{
       displayElem.innerHTML = html;
     }
 
-    // --- การบันทึกเรือ / แสดงผลลาน ---
     function assignYardArea() {
       const carType = document.getElementById('carType').value;
 
@@ -1699,18 +1702,8 @@ body{
       DB.saveBookings(bookingRecords);
     }
 
-    // --- โหมดสำรวจคอลัมน์ 4 สถานะ ---
-    // empty = แถวว่าง, out = หันออก, in = หันเข้า, mmt = MMT
-
-    // ============================================================
-    // Google Sheets Database Bridge
-    // ไม่ใช้ localStorage / sessionStorage
-    // ข้อมูลหลักถูกอ่านและบันทึกผ่าน google.script.run
-    // ============================================================
-    // URL ของ Google Apps Script Web App
     const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxW5z6yzZyFTlW88N-kwEJ6SV-EW01M1ZnQeZ3Pg-p1OrAt08qzx6RDZJdm56Qrw6A/exec';
 
-    // ติดตามคำสั่งบันทึกที่กำลังส่ง เพื่อไม่ให้กดรีเฟรชแล้วอ่านข้อมูลเก่ากลับมา
     const pendingDbWrites = new Set();
 
     const DB = {
@@ -1728,15 +1721,12 @@ body{
         this.status(zone, '⚠ เชื่อมต่อ Google Sheets ไม่สำเร็จ', 'err');
       },
 
-      // หน้าเว็บอยู่บน GitHub ดังนั้นห้ามใช้ google.script.run
-      // ใช้ Web App URL ของ Google Apps Script โดยตรงแทน
       async runServer(functionName, args = []) {
         const payload = {
           action: functionName,
           args: Array.isArray(args) ? args : []
         };
 
-        // GET สำหรับอ่านข้อมูลเริ่มต้น
         if (functionName === 'getInitialData') {
           const url = this.apiUrl + '?action=getInitialData&t=' + Date.now();
           const response = await fetch(url, {
@@ -1757,8 +1747,6 @@ body{
           return data.result || {};
         }
 
-        // POST แบบ text/plain เพื่อลดปัญหา CORS preflight
-        // ไม่ต้องอ่าน response เพราะการบันทึกถือว่าสำเร็จเมื่อ request ถูกส่งออกไป
         await fetch(this.apiUrl, {
           method: 'POST',
           headers: {
@@ -1855,14 +1843,11 @@ body{
       mmt:   { label: 'MMT', css: 'survey-mmt', headerCss: 'col-survey-mmt', masterCss: 'master-survey-mmt', mark: 'M' }
     };
 
-    // โหมดสำรวจที่ผู้ใช้เพิ่มเอง เช่น TOYOTA / ISUZU / Mazda
-    // เก็บชื่อไว้ในค่า mode โดยตรงในรูป custom:ชื่อโหมด จึงไม่ต้องแก้ GAS
     const customSurveyModes = {};
 
     function getCustomSurveyMark(label) {
       const name = String(label || '').trim();
       if (!name) return '?';
-      // Mazda ใช้ m ตัวเล็ก เพื่อไม่ชนกับ MMT ที่ใช้ M ตัวใหญ่
       if (/^mazda$/i.test(name)) return 'm';
       return name.charAt(0).toUpperCase();
     }
@@ -1875,7 +1860,6 @@ body{
       for (let i = 4; i <= 15; i++) {
         if (!used.has(i)) return i;
       }
-      // มีโหมดมากกว่า 12 โหมด ให้หมุนกลับมาใช้สีเดิม
       return 4 + (Object.keys(customSurveyModes).length % 12);
     }
 
@@ -1912,7 +1896,6 @@ body{
         registerCustomSurveyMode(mode);
         return customSurveyModes[mode];
       }
-      // รองรับข้อมูลเก่าที่อาจมีชื่อโหมดใหม่ถูกบันทึกเป็นข้อความตรง ๆ
       const key = registerCustomSurveyMode(mode);
       return key ? customSurveyModes[key] : null;
     }
@@ -2160,7 +2143,6 @@ body{
       if (list) renderSurveyModeManagerList(list);
     }
 
-    // เปิดหน้าต่างจัดการโหมดสำรวจแบบรายการ คล้ายหน้าจัดการหมวดหมู่สินค้า
     function manageCustomSurveyMode() {
       openSurveyModeManager();
     }
@@ -2171,9 +2153,6 @@ body{
         : '';
     }
 
-    // อัปเดตหน้าจอแบบหน่วงเล็กน้อยและรวมการบันทึกหลายคลิกเข้าด้วยกัน
-    // ช่วยลดอาการหน่วงบนมือถือ โดยรวมคลิกต่อเนื่องเป็นชุดเดียวก่อนส่ง GAS
-    // GAS จะบีบช่วงคอลัมน์ต่อเนื่องเป็น Range ใน YardSurvey
     const surveySaveQueue = { S: new Map(), MID: new Map(), N: new Map() };
     const surveySaveTimers = { S: null, MID: null, N: null };
     const surveySaveChains = {
@@ -2183,8 +2162,6 @@ body{
     };
     const surveyRenderTimers = { S: null, MID: null, N: null };
 
-    // สำคัญ: ส่งคำสั่งบันทึกของแต่ละโซนแบบเรียงคิว
-    // ป้องกันการยิง POST หลายตัวพร้อมกันจนข้อมูลบางคลิกตกหล่น
     function queueSurveySave(zone, changes) {
       if (!changes || !changes.length) return;
       if (!surveySaveQueue[zone]) surveySaveQueue[zone] = new Map();
@@ -2207,8 +2184,6 @@ body{
       const batch = Array.from(queue.values());
       queue.clear();
 
-      // ต่อท้าย promise เดิมเสมอ เพื่อให้ 45 -> 46 -> 47 -> 48
-      // ถูกส่งไป GAS ตามลำดับ ไม่ยิงชนกัน
       surveySaveChains[zone] = (surveySaveChains[zone] || Promise.resolve())
         .catch(() => {})
         .then(() => DB.saveSurvey(batch, zone))
@@ -2237,7 +2212,6 @@ body{
         await Promise.allSettled(promises);
       }
 
-      // เผื่อมีรายการใหม่เข้าคิวระหว่างที่ batch ก่อนหน้ากำลังส่ง
       ['S','MID','N'].forEach(zone => {
         if (surveySaveQueue[zone] && surveySaveQueue[zone].size) {
           promises.push(flushSurveyZoneSave(zone));
@@ -2253,8 +2227,6 @@ body{
       }
     }
 
-
-    // ตรวจสอบพื้นที่ซ้ำก่อนเปลี่ยนโหมด เพื่อป้องกันการบันทึกทับโดยไม่ตั้งใจ
     function getSurveyOverlapWarnings(zone, targets, newMode) {
       if (!newMode) return [];
 
@@ -2296,8 +2268,6 @@ body{
         }
       });
 
-      // รวมรายการที่ซ้ำกัน โดยถ้าเป็นโหมดเดิมและช่วงแถวเดียวกัน
-      // ให้รวมชื่อ Block เป็นกลุ่มเดียว เช่น Block A-D — แถว 34 ถึง 35
       const grouped = new Map();
       warnings.forEach(w => {
         const key = `${w.oldMode}|${w.start}|${w.end}`;
@@ -2321,7 +2291,6 @@ body{
       const sorted = blocks.slice().sort((a,b) => String(a).localeCompare(String(b)));
       if (sorted.length === 1) return `Block ${sorted[0]}`;
 
-      // รวม Block ที่ต่อเนื่องกัน เช่น A,B,C,D -> A-D
       const groups = [];
       let start = sorted[0];
       let prev = sorted[0];
@@ -2361,7 +2330,6 @@ body{
       if (!surveyColumnState[zone]) surveyColumnState[zone] = {};
       if (!surveyColumnState[zone][blockKey]) surveyColumnState[zone][blockKey] = {};
 
-      // ถ้าติ๊กซ้ำในโหมดเดิม = ยกเลิก
       const newState = (surveyColumnState[zone][blockKey][colNum] === mode) ? '' : mode;
       const targets = [{ zone, blockKey, colNum }];
 
@@ -2377,7 +2345,6 @@ body{
       const config = zoneConfigs[zone];
       if (!surveyColumnState[zone]) surveyColumnState[zone] = {};
 
-      // ถ้าทุกบล็อกเป็นโหมดเดียวกันอยู่แล้ว ให้คลิกครั้งนี้เป็นการล้างทุกบล็อก
       const allSame = config.blocks
         .filter(block => colNum <= (block.maxColLimit || config.maxCols))
         .every(block => getSurveyColumnState(zone, block.key, colNum) === mode);
@@ -2405,7 +2372,6 @@ body{
       queueSurveySave(zone, changes);
     }
 
-    // เลือกช่วงแถว/คอลัมน์ทีเดียวทุกบล็อคของโซนที่กำลังแสดง
     function applySurveyRange(zone) {
       const config = zoneConfigs[zone];
       const startEl = document.getElementById(`surveyRangeStart-${zone}`);
@@ -2533,7 +2499,6 @@ body{
       renderMobileSurveyPage();
     }
 
-    // เคลียร์ข้อมูลสำรวจทั้งหมดของโซนที่กำลังเปิดอยู่เท่านั้น
     function clearAllSurveyZone(zone) {
       const config = zoneConfigs[zone];
       if (!surveyColumnState[zone]) surveyColumnState[zone] = {};
@@ -2567,7 +2532,6 @@ body{
       const size = sizeEl ? sizeEl.value : 'pickup';
       const zoneBookings = bookingRecords.filter(b => b.zone === zone);
 
-      // แถบเลือกโหมดสำรวจของโซน
       const toolbar = document.createElement('div');
       toolbar.className = 'survey-mode-toolbar';
 
@@ -2602,7 +2566,6 @@ body{
       manageModeBtn.addEventListener('click', manageCustomSurveyMode);
       toolbar.appendChild(manageModeBtn);
 
-      // กรอกช่วงแถว/คอลัมน์เพื่อเลือกทีเดียว แทนการติ๊กทีละช่องบนมือถือ
       const rangeGroup = document.createElement('div');
       rangeGroup.className = 'survey-range-group';
       rangeGroup.innerHTML = `
@@ -2672,7 +2635,6 @@ body{
         ` | แถวว่างใส่รถได้รวม ${getSurveyEmptyCapacity(zone)} คัน`;
       wrapper.appendChild(zoneSurveySummary);
 
-      // แผงแปลนของโซน — ไม่มีปุ่มตัวเลขซ้ำในแต่ละโซนแล้ว
       const zoneSurveyLayout = document.createElement('div');
       zoneSurveyLayout.className = 'zone-survey-layout';
 
@@ -2704,7 +2666,6 @@ body{
           const colHead = document.createElement('div');
           colHead.className = 'col-header' + (colMeta ? ` ${colMeta.headerCss}` : '');
 
-          // ช่องติ๊กของแต่ละ BLOCK: คงรูปแบบเดิม ไม่ขยาย
           const check = document.createElement('input');
           check.type = 'checkbox';
           check.className = 'col-check';
@@ -2716,7 +2677,6 @@ body{
             setSurveyColumnState(zone, block.key, c, selectedSurveyMode);
           });
 
-          // เลขคอลัมน์เป็นข้อความเดิม ไม่ใช่ปุ่ม
           const num = document.createElement('div');
           num.className = 'col-number';
           num.innerText = c;
@@ -2885,7 +2845,6 @@ body{
       document.getElementById('vesselModal').style.display = 'none';
     }
 
-    // --- หน้าสรุปแถวว่างจากการสำรวจด้วย checkbox ---
     function getSurveyEmptyRangesForBlock(zone, block) {
       const maxCols = block.maxColLimit || zoneConfigs[zone].maxCols;
       const ranges = [];
@@ -2944,8 +2903,6 @@ body{
         let zoneCols = 0;
         let hasRange = false;
 
-        // รวม Block ที่มีช่วงแถวว่างเหมือนกันให้เป็นรายการเดียว
-        // เช่น Block A, B, C, D ว่างแถว 15-28 เหมือนกัน -> Block A-D — แถว 15 ถึง 28
         const groupedRanges = [];
         const groupedMap = new Map();
 
@@ -3004,7 +2961,7 @@ body{
     }
 
 
-    // --- หน้าสรุปการใส่รถจากโหมดสำรวจ ---
+    // --- หน้าสรุปการใส่รถจากโหมดสำรวจ (ปรับแก้ให้แสดงทุกโหมดเรียงกัน และรวบ Block) ---
     function getSurveyModeSummaryRows(zone, mode) {
       const result = [];
       const config = zoneConfigs[zone];
@@ -3108,9 +3065,6 @@ body{
           .map(([key, meta]) => [key, meta.label])
       ];
 
-      let mode = selectedSurveyMode || 'empty';
-      if (!availableModes.some(([key]) => key === mode)) mode = 'empty';
-
       const card = document.createElement('div');
       card.className = 'car-survey-summary-card';
 
@@ -3118,84 +3072,98 @@ body{
       head.className = 'car-survey-summary-head';
       head.innerHTML = `
         <div>
-          <div class="car-survey-summary-title">🚘 สรุปการใส่รถ</div>
-          <div class="car-survey-summary-sub">แสดงว่าโหมดสำรวจที่เลือกอยู่ที่ Block/คอลัมน์ใด มีแถวใดบ้าง และรวมทั้งหมดกี่คัน</div>
-        </div>
-        <div>
-          <select id="carSurveySummaryMode" class="car-survey-mode-select">
-            ${availableModes.map(([key,label]) => `<option value="${escapeHtmlAttr(key)}">${escapeHtml(label)}</option>`).join('')}
-          </select>
+          <div class="car-survey-summary-title">🚘 สรุปการใส่รถตามโหมดสำรวจ</div>
+          <div class="car-survey-summary-sub">แสดงรายการจำแนกตามโหมดสำรวจ รวบกลุ่ม Block คอลัมน์ และจำนวนรถในแต่ละโซน</div>
         </div>`;
       card.appendChild(head);
 
-      const modeSelect = head.querySelector('#carSurveySummaryMode');
-      modeSelect.value = mode;
-      modeSelect.onchange = () => {
-        selectedSurveyMode = modeSelect.value;
-        renderCarSurveySummaryPage();
-      };
-
-      const meta = getSurveyModeMeta(mode) || {label: mode};
-      let grandTotal = 0;
-      let grandColumns = 0;
-      let grandRanges = 0;
+      let grandTotalCars = 0;
       const zoneNames = {S:'ฝั่งใต้ (S)', MID:'หน้าตึก (MID)', N:'ฝั่งเหนือ (N)'};
 
       ['S','MID','N'].forEach(zone => {
-        const rows = getSurveyModeSummaryRows(zone, mode);
         const zoneBox = document.createElement('div');
         zoneBox.className = 'car-survey-zone';
 
-        const zoneTotal = rows.reduce((sum, r) => sum + r.capacity, 0);
-        const zoneColumns = rows.reduce((sum, r) => sum + (r.endCol - r.startCol + 1), 0);
+        let zoneTotalCars = 0;
+        let zoneContentHtml = '';
+
+        availableModes.forEach(([modeKey, modeLabel]) => {
+          const rawRows = getSurveyModeSummaryRows(zone, modeKey);
+          if (!rawRows.length) return;
+
+          // รวบ Block ที่มีช่วงคอลัมน์ และการเว้นแถวที่เหมือนกัน
+          const groupedMap = new Map();
+          rawRows.forEach(r => {
+            const groupKey = `${r.startCol}|${r.endCol}|${r.rows}`;
+            if (!groupedMap.has(groupKey)) {
+              groupedMap.set(groupKey, {
+                startCol: r.startCol,
+                endCol: r.endCol,
+                rows: r.rows,
+                blocks: [],
+                totalCapacity: 0
+              });
+            }
+            const group = groupedMap.get(groupKey);
+            group.blocks.push(r.block);
+            group.totalCapacity += r.capacity;
+          });
+
+          let modeTotalCapacity = 0;
+          let modeRowsHtml = '';
+
+          groupedMap.forEach(g => {
+            modeTotalCapacity += g.totalCapacity;
+
+            // จัดฟอร์แมตชื่อบล็อก เช่น A, B, C, D -> Block A-D
+            const blockText = formatSurveyBlockGroup(g.blocks);
+            const colText = g.startCol === g.endCol ? `คอลัมน์ ${g.startCol}` : `คอลัมน์ ${g.startCol} ถึง ${g.endCol}`;
+
+            modeRowsHtml += `
+              <div class="car-survey-row">
+                <div class="car-survey-range"><strong>${escapeHtml(blockText)}</strong> — ${colText}</div>
+                <div class="car-survey-rows">แถว ${escapeHtml(g.rows)}</div>
+                <div class="car-survey-count">${g.totalCapacity} คัน</div>
+              </div>`;
+          });
+
+          zoneTotalCars += modeTotalCapacity;
+
+          zoneContentHtml += `
+            <div class="car-survey-mode-section">
+              <div class="car-survey-mode-title">
+                <span>🏷️ โหมด: ${escapeHtml(modeLabel)}</span>
+                <span style="color:#1d4ed8;">${modeTotalCapacity} คัน</span>
+              </div>
+              ${modeRowsHtml}
+            </div>`;
+        });
 
         zoneBox.innerHTML = `
           <div class="car-survey-zone-title">
             <span>📍 โซน ${zoneNames[zone]}</span>
-            <span>${zoneTotal} คัน</span>
+            <span>${zoneTotalCars} คัน</span>
+          </div>
+          ${zoneContentHtml || '<div class="car-survey-none">ยังไม่มีการบันทึกข้อมูลโหมดสำรวจในโซนนี้</div>'}
+          <div class="car-survey-total" style="margin-top:12px;">
+            <span>รวมโซน ${zone}</span>
+            <span>${zoneTotalCars} คัน</span>
           </div>`;
 
-        if (!rows.length) {
-          const none = document.createElement('div');
-          none.className = 'car-survey-none';
-          none.textContent = `ยังไม่มีการใส่รถในโหมด "${meta.label}" ในโซนนี้`;
-          zoneBox.appendChild(none);
-        } else {
-          rows.forEach(r => {
-            const row = document.createElement('div');
-            row.className = 'car-survey-row';
-            const colText = r.startCol === r.endCol
-              ? `คอลัมน์ ${r.startCol}`
-              : `คอลัมน์ ${r.startCol} ถึง ${r.endCol}`;
-            row.innerHTML = `
-              <div class="car-survey-range"><strong>Block ${escapeHtml(r.block)}</strong> — ${colText}</div>
-              <div class="car-survey-rows">แถว ${escapeHtml(r.rows)}</div>
-              <div class="car-survey-count">${r.capacity} คัน</div>`;
-            zoneBox.appendChild(row);
-          });
-        }
-
-        const total = document.createElement('div');
-        total.className = 'car-survey-total';
-        total.innerHTML = `<span>รวมโซน ${zone}</span><span>${zoneTotal} คัน</span>`;
-        zoneBox.appendChild(total);
         card.appendChild(zoneBox);
-
-        grandTotal += zoneTotal;
-        grandColumns += zoneColumns;
-        grandRanges += rows.length;
+        grandTotalCars += zoneTotalCars;
       });
 
       const grand = document.createElement('div');
       grand.className = 'car-survey-grand';
       grand.innerHTML = `
-        <span>🚘 รวมโหมด "${escapeHtml(meta.label)}" — ${grandColumns} คอลัมน์ / ${grandRanges} ช่วง</span>
-        <span>${grandTotal} คัน</span>`;
+        <span>🚘 รวมการใส่รถทั้งหมดทุกโซนทุกโหมด</span>
+        <span>${grandTotalCars} คัน</span>`;
       card.appendChild(grand);
+
       container.appendChild(card);
     }
 
-    // --- แสดงผลหน้าสรุปข้อมูล (SUMMARY PAGE) ---
     function renderSummaryPage() {
       const container = document.getElementById('summaryContainerContent');
       if (!container) return;
@@ -3205,7 +3173,6 @@ body{
       const vehicleLabel = vehicleSize === 'pickup' ? '🛻 รถกระบะ' : '🚗 รถเก๋ง';
       const zoneNameMap = { S: 'ฝั่งใต้ (S)', MID: 'หน้าตึก (MID)', N: 'ฝั่งเหนือ (N)' };
 
-      // 1. สร้างการ์ดสรุปแถวว่างรวมทุกโซน (Empty Block/Rows Capacity Summary)
       let grandTotalEmptyCapacity = 0;
       let globalEmptyGridHTML = '';
 
@@ -3258,7 +3225,6 @@ body{
 
       container.appendChild(globalEmptyCard);
 
-      // 2. แสดงตารางรายการเรือแต่ละโซน
       ['S', 'MID', 'N'].forEach(zoneKey => {
         const zoneBookings = bookingRecords.filter(b => b.zone === zoneKey);
         
@@ -3305,16 +3271,8 @@ body{
       });
     }
 
-
-    // ============================================================
-    // หน้าใหม่สำหรับมือถือ: เลือกพื้นที่โดยมือถือ
-    // ใช้ surveyColumnState ชุดเดียวกับหน้าแปลนหลัก เพื่อให้การไฮไลท์
-    // และข้อมูลที่บันทึกลง Google Sheets เป็นชุดเดียวกัน
-    // ============================================================
     let mobileSurveyZone = 'S';
 
-    // มือถือเริ่มต้นเลือกทุกบล็อกของโซนที่เปิดอยู่
-    // ผู้ใช้สามารถจิ้มบล็อกที่ไม่ต้องการเพื่อเอาออกได้
     const mobileSelectedBlocks = {
       S: new Set(zoneConfigs.S.blocks.map(b => b.key)),
       MID: new Set(zoneConfigs.MID.blocks.map(b => b.key)),
@@ -3330,8 +3288,6 @@ body{
       return mobileSelectedBlocks[zone];
     }
 
-    // ข้อมูลที่ผู้ใช้เลือกจากหน้ามือถือจะเก็บไว้ในหน่วยความจำของหน้าเว็บก่อน
-    // ยังไม่ส่ง Google Sheets จนกว่าจะกด "บันทึก / ยืนยัน"
     const mobilePendingSurvey = new Map();
 
     function getMobileZoneName(zone) {
@@ -3431,7 +3387,6 @@ body{
       ['S','MID','N'].forEach(z => DB.status(z, '☁ กำลังบันทึกข้อมูลจากมือถือ...', 'busy'));
 
       try {
-        // ส่ง POST เพียงครั้งเดียว โดยรวมทุกโซน/ทุกบล็อกไว้ใน changes ชุดเดียว
         await DB.runServer('saveSurveyCells', [changes]);
 
         mobilePendingSurvey.clear();
@@ -3491,9 +3446,6 @@ body{
       zoneGroup.appendChild(zoneButtons);
       container.appendChild(zoneGroup);
 
-      // ==========================================================
-      // เลือกบล็อก: ค่าเริ่มต้นเลือกทุกบล็อก ผู้ใช้จิ้มเอาบล็อกออกเองได้
-      // ==========================================================
       const blockGroup = document.createElement('div');
       blockGroup.className = 'mobile-block-group';
 
@@ -3515,7 +3467,6 @@ body{
 
         btn.addEventListener('click', () => {
           if (selectedBlocks.has(block.key)) {
-            // ไม่ให้เหลือ 0 บล็อก
             if (selectedBlocks.size === 1) {
               setStatus('ต้องเลือกอย่างน้อย 1 บล็อก', 'err');
               return;
@@ -3525,7 +3476,6 @@ body{
             selectedBlocks.add(block.key);
           }
 
-          // เปลี่ยนเฉพาะการเลือกบล็อก ไม่ส่ง GAS และไม่ล้างรายการที่ค้างบันทึก
           renderMobileSurveyPage();
         });
 
@@ -3605,8 +3555,6 @@ body{
         btn.innerText = c;
         btn.title = `คอลัมน์ ${c}`;
         btn.addEventListener('click', () => {
-          // หน้ามือถือยังไม่ส่ง GAS ตอนกดตัวเลข
-          // เก็บค่าที่เลือกไว้ใน Map ก่อน แล้วค่อยส่งทั้งหมดครั้งเดียวเมื่อกดบันทึก
           const zone = mobileSurveyZone;
           const config = zoneConfigs[zone];
           if (!surveyColumnState[zone]) surveyColumnState[zone] = {};
@@ -3629,7 +3577,6 @@ body{
             targets.push({zone, blockKey:block.key, colNum:c});
           });
 
-          // ใช้กติกาตรวจสอบพื้นที่ซ้ำเดิมของระบบ ก่อนเปลี่ยนสถานะ
           if (!confirmSurveyOverlap(zone, targets, newState)) return;
 
           targets.forEach(target => {
@@ -3686,7 +3633,6 @@ body{
         if (confirm(`ยืนยันการเคลียร์ข้อมูลสำรวจทั้งหมดของโซน ${mobileSurveyZone} หรือไม่?\n\nข้อมูลทุกโหมดของโซนนี้จะถูกล้าง`)) {
           const clearZone = mobileSurveyZone;
           clearAllSurveyZone(clearZone);
-          // ถ้ามีรายการที่ยังไม่ได้บันทึกของโซนนี้อยู่ ให้ล้างออกจากคิวมือถือด้วย
           Array.from(mobilePendingSurvey.keys()).forEach(key => {
             if (key.startsWith(`${clearZone}|`)) mobilePendingSurvey.delete(key);
           });
@@ -3703,7 +3649,6 @@ body{
       try {
         const data = await DB.loadAll();
 
-        // โหลดข้อมูลสำรวจ
         ['S','MID','N'].forEach(z => surveyColumnState[z] = {});
         (data.surveys || []).forEach(item => {
           if (!surveyColumnState[item.zone]) surveyColumnState[item.zone] = {};
@@ -3715,11 +3660,8 @@ body{
           surveyColumnState[item.zone][item.blockKey][Number(item.colNum)] = loadedMode;
         });
 
-        // โหลดข้อมูลเรือ
         bookingRecords = Array.isArray(data.bookings) ? data.bookings : [];
 
-        // โหลดข้อมูลแล้ววาดเฉพาะหน้าที่กำลังเปิดอยู่
-        // โซนอื่นจะวาดเมื่อผู้ใช้กดเข้าโซนนั้น
         if (activeCurrentWindow === 'S' || activeCurrentWindow === 'MID' || activeCurrentWindow === 'N') {
           renderYardWindow(activeCurrentWindow);
         } else {
@@ -3743,7 +3685,6 @@ body{
       }
     }
 
-    // เรียกใช้ตอนเริ่มต้น
     setDefaultTimes();
     updateTargetBlockDropdowns();
     ['S', 'MID', 'N'].forEach(z => {
@@ -3764,7 +3705,6 @@ async function refreshMobileData(){
   btn.innerText = '⏳ กำลังโหลด';
 
   try {
-    // รอรายการที่ยังค้างส่งก่อน เพื่อไม่ให้รีเฟรชแล้วข้อมูลเก่าทับข้อมูลใหม่
     if (typeof flushSurveySaveQueues === 'function') {
       await flushSurveySaveQueues();
     } else if (typeof pendingDbWrites !== 'undefined' && pendingDbWrites.size) {
@@ -3784,19 +3724,3 @@ async function refreshMobileData(){
 
 </body>
 </html>
-
-<style>
-.slot.survey-marked{
-  font-family:"Segoe UI",Tahoma,sans-serif !important;
-  font-weight:500 !important;
-  line-height:1 !important;
-}
-.slot.survey-mmt{
-  font-size:11px !important;
-  font-weight:400 !important;
-}
-.slot.survey-out,.slot.survey-in{
-  font-size:0 !important;
-  font-weight:400 !important;
-}
-</style>
