@@ -104,7 +104,6 @@
     .summary-zone-card { background: white; color: #334155; border-radius: 10px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #cbd5e1; }
     .summary-zone-title { font-size: 16px; font-weight: bold; color: #1e293b; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
     
-    /* สไตล์สำหรับการ์ดสรุปแถวว่างในหน้า SUMMARY */
     .global-empty-summary-card { background: #fffbebfb; border: 2px solid #f59e0b; border-radius: 10px; padding: 20px; color: #78350f; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
     .global-empty-title { font-size: 18px; font-weight: bold; color: #b45309; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #fcd34d; padding-bottom: 8px; }
     .global-empty-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 10px; }
@@ -2926,9 +2925,7 @@ body{
           zoneCols += group.columnsPerBlock * group.blocks.length;
           zoneTotal += group.capacity;
 
-          const blockText = group.blocks.length === 1
-            ? `Block ${group.blocks[0]}`
-            : `Block ${group.blocks[0]}-${group.blocks[group.blocks.length - 1]}`;
+          const blockText = formatSurveyBlockGroup(group.blocks);
 
           const row = document.createElement('div');
           row.className = 'empty-survey-block';
@@ -2961,7 +2958,7 @@ body{
     }
 
 
-    // --- หน้าสรุปการใส่รถจากโหมดสำรวจ (ปรับแก้ให้แสดงทุกโหมดเรียงกัน และรวบ Block) ---
+    // --- ฟังก์ชันดึงพิกัด Block และคอลัมน์ของแต่ละโหมด ---
     function getSurveyModeSummaryRows(zone, mode) {
       const result = [];
       const config = zoneConfigs[zone];
@@ -3050,6 +3047,7 @@ body{
       return result;
     }
 
+    // --- หน้าสรุปการใส่รถตามโหมดสำรวจ (รวบกลุ่ม Block คอลัมน์ ทันทีที่อยู่ช่วงเดียวกัน) ---
     function renderCarSurveySummaryPage() {
       const container = document.getElementById('carSurveySummaryContent');
       if (!container) return;
@@ -3091,21 +3089,22 @@ body{
           const rawRows = getSurveyModeSummaryRows(zone, modeKey);
           if (!rawRows.length) return;
 
-          // รวบ Block ที่มีช่วงคอลัมน์ และการเว้นแถวที่เหมือนกัน
+          // รวบ Block โดยจับกลุ่มจากช่วงคอลัมน์เดียวกันเท่านั้น
           const groupedMap = new Map();
           rawRows.forEach(r => {
-            const groupKey = `${r.startCol}|${r.endCol}|${r.rows}`;
+            const groupKey = `${r.startCol}|${r.endCol}`;
             if (!groupedMap.has(groupKey)) {
               groupedMap.set(groupKey, {
                 startCol: r.startCol,
                 endCol: r.endCol,
-                rows: r.rows,
                 blocks: [],
+                rowRangesMap: new Map(),
                 totalCapacity: 0
               });
             }
             const group = groupedMap.get(groupKey);
             group.blocks.push(r.block);
+            group.rowRangesMap.set(r.block, r.rows);
             group.totalCapacity += r.capacity;
           });
 
@@ -3115,14 +3114,19 @@ body{
           groupedMap.forEach(g => {
             modeTotalCapacity += g.totalCapacity;
 
-            // จัดฟอร์แมตชื่อบล็อก เช่น A, B, C, D -> Block A-D
+            // รวบชื่อบล็อก เช่น Block A, B, C, D -> Block A-D
             const blockText = formatSurveyBlockGroup(g.blocks);
             const colText = g.startCol === g.endCol ? `คอลัมน์ ${g.startCol}` : `คอลัมน์ ${g.startCol} ถึง ${g.endCol}`;
+
+            const uniqueRowRanges = [...new Set(g.rowRangesMap.values())];
+            const rowsText = uniqueRowRanges.length === 1 
+              ? `แถว ${uniqueRowRanges[0]}` 
+              : Array.from(g.rowRangesMap.entries()).map(([b, r]) => `${b}: แถว ${r}`).join(', ');
 
             modeRowsHtml += `
               <div class="car-survey-row">
                 <div class="car-survey-range"><strong>${escapeHtml(blockText)}</strong> — ${colText}</div>
-                <div class="car-survey-rows">แถว ${escapeHtml(g.rows)}</div>
+                <div class="car-survey-rows">${escapeHtml(rowsText)}</div>
                 <div class="car-survey-count">${g.totalCapacity} คัน</div>
               </div>`;
           });
