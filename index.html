@@ -775,7 +775,7 @@ body{
 .survey-mode-disabled{opacity:.45;cursor:not-allowed;}
 .survey-mode-modal-note{margin-top:12px;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;color:#64748b;font-size:12px;line-height:1.5;background:#fff;}
 .survey-mode-modal-foot{padding:10px 22px 16px;display:flex;justify-content:flex-end;border-top:1px solid #f1f5f9;}
-.survey-mode-modal-foot button{height:38px;padding:0 16px;border:0;border-radius:9px;background:#f1f5f9;color:#334155;font-weight:900;cursor:pointer;}
+.survey-mode-modal-foot button{height:38px;padding:0 16px;border:0;border-radius:99px;background:#f1f5f9;color:#334155;font-weight:900;cursor:pointer;}
 
 .slot.survey-custom-4{background:#fce7f3!important;border:1px solid #f9a8d4!important;color:#be185d!important}
 .slot.survey-custom-5{background:#fef3c7!important;border:1px solid #fcd34d!important;color:#b45309!important}
@@ -830,10 +830,9 @@ body{
 .car-survey-zone-title{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:900;color:#1e40af;border-bottom:1px solid #bfdbfe;padding-bottom:8px;margin-bottom:8px;font-size:16px;}
 .car-survey-mode-section{margin:10px 0 6px;padding:8px 10px;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;}
 .car-survey-mode-title{font-weight:800;color:#0f172a;font-size:14px;margin-bottom:6px;display:flex;justify-content:space-between;align-items:center;}
-.car-survey-row{display:grid;grid-template-columns:minmax(180px,1fr) minmax(150px,auto) minmax(90px,auto);gap:10px;align-items:center;padding:6px 0;border-bottom:1px dashed #e2e8f0;font-size:13px;}
+.car-survey-row{display:grid;grid-template-columns:minmax(180px,1fr) minmax(90px,auto);gap:10px;align-items:center;padding:6px 0;border-bottom:1px dashed #e2e8f0;font-size:13px;}
 .car-survey-row:last-child{border-bottom:0;}
 .car-survey-range{font-weight:800;color:#334155;}
-.car-survey-rows{color:#52657d;}
 .car-survey-count{font-weight:900;color:#1d4ed8;text-align:right;white-space:nowrap;}
 .car-survey-total{margin-top:10px;padding:12px 14px;background:#1d4ed8;color:#fff;border-radius:8px;display:flex;justify-content:space-between;align-items:center;font-weight:900;}
 .car-survey-grand{margin-top:12px;padding:16px;background:#0f766e;color:#fff;border-radius:9px;display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:17px;}
@@ -2980,40 +2979,6 @@ body{
         let prev = activeCols[0];
 
         const pushRange = (rangeStart, rangeEnd) => {
-          const rowGroups = [];
-          let rowStart = null;
-          let rowPrev = null;
-
-          for (let r = 1; r <= rowsCount; r++) {
-            let usableEveryColumn = true;
-            for (let c = rangeStart; c <= rangeEnd; c++) {
-              if (block.heavyCustom && block.heavyCustom(c, r)) {
-                usableEveryColumn = false;
-                break;
-              }
-            }
-
-            if (usableEveryColumn) {
-              if (rowStart === null) {
-                rowStart = r;
-                rowPrev = r;
-              } else if (r === rowPrev + 1) {
-                rowPrev = r;
-              } else {
-                rowGroups.push(rowStart === rowPrev ? `${rowStart}` : `${rowStart}-${rowPrev}`);
-                rowStart = r;
-                rowPrev = r;
-              }
-            } else if (rowStart !== null) {
-              rowGroups.push(rowStart === rowPrev ? `${rowStart}` : `${rowStart}-${rowPrev}`);
-              rowStart = null;
-              rowPrev = null;
-            }
-          }
-          if (rowStart !== null) {
-            rowGroups.push(rowStart === rowPrev ? `${rowStart}` : `${rowStart}-${rowPrev}`);
-          }
-
           let exactCapacity = 0;
           for (let c = rangeStart; c <= rangeEnd; c++) {
             for (let r = 1; r <= rowsCount; r++) {
@@ -3025,7 +2990,6 @@ body{
             block: block.key,
             startCol: rangeStart,
             endCol: rangeEnd,
-            rows: rowGroups.length ? rowGroups.join(', ') : '-',
             capacity: exactCapacity
           });
         };
@@ -3047,7 +3011,7 @@ body{
       return result;
     }
 
-    // --- หน้าสรุปการใส่รถตามโหมดสำรวจ (รวบกลุ่ม Block คอลัมน์ ทันทีที่อยู่ช่วงเดียวกัน) ---
+    // --- หน้าสรุปการใส่รถตามโหมดสำรวจ (ตัดข้อมูลแถวออกแล้ว) ---
     function renderCarSurveySummaryPage() {
       const container = document.getElementById('carSurveySummaryContent');
       if (!container) return;
@@ -3098,13 +3062,11 @@ body{
                 startCol: r.startCol,
                 endCol: r.endCol,
                 blocks: [],
-                rowRangesMap: new Map(),
                 totalCapacity: 0
               });
             }
             const group = groupedMap.get(groupKey);
             group.blocks.push(r.block);
-            group.rowRangesMap.set(r.block, r.rows);
             group.totalCapacity += r.capacity;
           });
 
@@ -3118,15 +3080,9 @@ body{
             const blockText = formatSurveyBlockGroup(g.blocks);
             const colText = g.startCol === g.endCol ? `คอลัมน์ ${g.startCol}` : `คอลัมน์ ${g.startCol} ถึง ${g.endCol}`;
 
-            const uniqueRowRanges = [...new Set(g.rowRangesMap.values())];
-            const rowsText = uniqueRowRanges.length === 1 
-              ? `แถว ${uniqueRowRanges[0]}` 
-              : Array.from(g.rowRangesMap.entries()).map(([b, r]) => `${b}: แถว ${r}`).join(', ');
-
             modeRowsHtml += `
-              <div class="car-survey-row">
+              <div class="car-survey-row" style="grid-template-columns: minmax(180px, 1fr) minmax(90px, auto);">
                 <div class="car-survey-range"><strong>${escapeHtml(blockText)}</strong> — ${colText}</div>
-                <div class="car-survey-rows">${escapeHtml(rowsText)}</div>
                 <div class="car-survey-count">${g.totalCapacity} คัน</div>
               </div>`;
           });
