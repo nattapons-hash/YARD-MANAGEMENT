@@ -35,7 +35,6 @@
     .mitsubishi-section { background: #1a1528; border: 1px dashed #7c3aed; padding: 10px 15px; border-radius: 8px; display: flex; flex-direction: column; gap: 8px; }
     .mitsubishi-header { font-size: 13px; font-weight: bold; color: #a78bfa; display: flex; align-items: center; gap: 6px; }
 
-    /* การ์ดจัดการแถวว่างประจำโซน */
     .zone-empty-section { background: rgba(245, 158, 11, 0.05); border: 1px solid #f59e0b; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; color: #334155; }
     .zone-empty-header { font-size: 13px; font-weight: bold; color: #d97706; display: flex; justify-content: space-between; align-items: center; }
     .empty-range-list { display: flex; flex-direction: column; gap: 8px; }
@@ -97,7 +96,6 @@
     .slot.assigned { border: 1px solid rgba(0,0,0,0.2); }
     .slot.overlap { border: 2px dashed #fbbf24; }
     .slot.mitsubishi-slot { color: #dc2626; font-weight: bold; }
-    
     .slot.empty-disabled { background-color: #fca5a5 !important; border: 1px solid #ef4444 !important; color: #991b1b; font-weight: bold; cursor: not-allowed; }
 
     .summary-container { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 1200px; margin: 0 auto; }
@@ -115,7 +113,6 @@
     .summary-table th, .summary-table td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; }
     .summary-table th { background: #f1f5f9; font-weight: bold; color: #475569; }
     .summary-table tr:hover { background: #f8fafc; }
-    
     .badge-normal { background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 4px; font-weight: bold; display: inline-block; font-size: 11px; }
 
     .global-legend-bar { background: #1e293b; border-top: 1px solid #334155; padding: 12px 20px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
@@ -151,7 +148,6 @@
 
 .slot.column-empty{background:#dcfce7 !important;border:1px solid #86efac !important;color:#166534 !important;}
 </style>
-
 
 <style id="survey-four-mode-css">
 .survey-mode-toolbar{
@@ -210,7 +206,6 @@
 .zone-master-col.master-survey-mmt{color:#7e22ce;background:#f3e8ff;border-radius:4px;}
 </style>
 
-
 <style id="survey-visual-fix">
 .slot.survey-marked{
   font-size:10px !important;
@@ -250,7 +245,6 @@
 .empty-survey-grand{margin-top:12px;padding:16px;background:#0f766e;color:#fff;border-radius:8px;display:flex;justify-content:space-between;align-items:center;font-weight:bold;font-size:18px;}
 .empty-survey-none{color:#94a3b8;font-size:12px;}
 </style>
-
 
 <style id="modern-yard-ui">
 :root{
@@ -467,7 +461,6 @@ header, .header, .topbar{
 }
 </style>
 
-
 <style id="wide-window-layout">
 .zone-window{
   width:calc(100vw - 48px) !important;
@@ -510,7 +503,6 @@ body{
 }
 </style>
 
-
 <style id="google-sheet-db-css">
 .db-status{
   display:inline-flex;align-items:center;gap:6px;
@@ -522,7 +514,6 @@ body{
 .db-status.busy{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
 .db-status.err{background:#fff1f2;color:#be123c;border-color:#fecdd3}
 </style>
-
 
 <style id="mobile-webapp">
 @media (max-width:700px){
@@ -658,7 +649,6 @@ body{
 .col-header.col-survey-out .col-number{background:transparent !important;border:0 !important;color:#1d4ed8 !important;}
 .col-header.col-survey-in .col-number{background:transparent !important;border:0 !important;color:#c2410c !important;}
 .col-header.col-survey-mmt .col-number{background:transparent !important;border:0 !important;color:#7e22ce !important;}
-
 </style>
 
 <style id="mobile-survey-page">
@@ -717,9 +707,6 @@ body{
 }
 </style>
 
-
-
-
 <style id="top-refresh-button-style">
 .top-refresh-btn{
   background:#f0fdf4 !important;
@@ -735,7 +722,6 @@ body{
   cursor:wait;
 }
 </style>
-
 
 <style id="dynamic-survey-mode-css">
 .survey-add-mode-btn{height:36px;padding:0 12px;border:1px solid #0f766e;border-radius:8px;background:#f0fdfa;color:#0f766e;font-weight:800;cursor:pointer;white-space:nowrap;}
@@ -818,7 +804,6 @@ body{
 .mobile-manage-mode-btn{width:100%;margin-top:7px;min-height:38px;border:1px solid #cbd5e1;border-radius:8px;background:#fff;color:#334155;font-weight:800;cursor:pointer;}
 @media(max-width:700px){.survey-add-mode-btn{height:38px;font-size:12px;padding:0 10px;}}
 </style>
-
 
 <style id="car-survey-summary-css">
 .car-survey-summary-card{background:#fff;color:#334155;border:1px solid #d7e0ea;border-radius:14px;padding:18px;box-shadow:0 8px 24px rgba(31,48,71,.08);}
@@ -1826,6 +1811,18 @@ body{
         return promise;
       },
 
+      saveCustomMode(key, label, colorIndex) {
+        const promise = this.runServer('saveCustomMode', [key, label, colorIndex]);
+        pendingDbWrites.add(promise);
+        return promise.finally(() => pendingDbWrites.delete(promise));
+      },
+
+      deleteCustomMode(key) {
+        const promise = this.runServer('deleteCustomMode', [key]);
+        pendingDbWrites.add(promise);
+        return promise.finally(() => pendingDbWrites.delete(promise));
+      },
+
       loadAll() {
         return this.runServer('getInitialData', []);
       }
@@ -1873,7 +1870,7 @@ body{
       };
     }
 
-    function registerCustomSurveyMode(modeOrLabel) {
+    function registerCustomSurveyMode(modeOrLabel, colorIndexOverride = null) {
       let raw = String(modeOrLabel || '').trim();
       if (!raw) return '';
 
@@ -1882,7 +1879,12 @@ body{
       if (!label) return '';
 
       if (customSurveyModes[key]) return key;
-      customSurveyModes[key] = buildCustomSurveyMeta(label);
+      const meta = buildCustomSurveyMeta(label, colorIndexOverride);
+      customSurveyModes[key] = meta;
+
+      // บันทึกลง Google Sheets
+      DB.saveCustomMode(key, meta.label, meta.colorIndex);
+
       return key;
     }
 
@@ -1942,7 +1944,7 @@ body{
     function surveyModeManagerLetter(meta) {
       if (!meta) return '?';
       const cls = meta.colorIndex ? ` survey-mode-letter-custom-${meta.colorIndex}` : '';
-      return `<span class=\"survey-mode-letter-inner${cls}\">${escapeHtml(meta.mark || '?')}</span>`;
+      return `<span class="survey-mode-letter-inner${cls}">${escapeHtml(meta.mark || '?')}</span>`;
     }
 
     function renderSurveyModeManagerList(listEl) {
@@ -2076,14 +2078,17 @@ body{
       });
 
       const oldColorIndex = customSurveyModes[mode].colorIndex;
+      delete customSurveyModes[mode];
+      DB.deleteCustomMode(mode); // ลบโหมดชื่อเดิมในระบบ DB
+
       customSurveyModes[newKey] = buildCustomSurveyMeta(clean, oldColorIndex);
+      DB.saveCustomMode(newKey, clean, oldColorIndex); // บันทึกโหมดชื่อใหม่ลง DB
 
       const saves = Object.keys(changesByZone)
         .filter(zone => changesByZone[zone].length)
         .map(zone => DB.saveSurvey(changesByZone[zone], zone));
       await Promise.allSettled(saves);
 
-      delete customSurveyModes[mode];
       selectedSurveyMode = newKey;
       renderAllYardWindows();
       renderMobileSurveyPage();
@@ -2133,6 +2138,8 @@ body{
       await Promise.allSettled(clearPromises);
 
       delete customSurveyModes[mode];
+      DB.deleteCustomMode(mode); // ลบโหมดออกจาก DB
+
       if (selectedSurveyMode === mode) selectedSurveyMode = 'empty';
       renderAllYardWindows();
       renderMobileSurveyPage();
@@ -2956,8 +2963,6 @@ body{
       container.appendChild(card);
     }
 
-
-    // --- ฟังก์ชันดึงพิกัด Block และคอลัมน์ของแต่ละโหมด ---
     function getSurveyModeSummaryRows(zone, mode) {
       const result = [];
       const config = zoneConfigs[zone];
@@ -3011,7 +3016,6 @@ body{
       return result;
     }
 
-    // --- หน้าสรุปการใส่รถตามโหมดสำรวจ (ตัดข้อมูลแถวออกแล้ว) ---
     function renderCarSurveySummaryPage() {
       const container = document.getElementById('carSurveySummaryContent');
       if (!container) return;
@@ -3053,7 +3057,6 @@ body{
           const rawRows = getSurveyModeSummaryRows(zone, modeKey);
           if (!rawRows.length) return;
 
-          // รวบ Block โดยจับกลุ่มจากช่วงคอลัมน์เดียวกันเท่านั้น
           const groupedMap = new Map();
           rawRows.forEach(r => {
             const groupKey = `${r.startCol}|${r.endCol}`;
@@ -3075,8 +3078,6 @@ body{
 
           groupedMap.forEach(g => {
             modeTotalCapacity += g.totalCapacity;
-
-            // รวบชื่อบล็อก เช่น Block A, B, C, D -> Block A-D
             const blockText = formatSurveyBlockGroup(g.blocks);
             const colText = g.startCol === g.endCol ? `คอลัมน์ ${g.startCol}` : `คอลัมน์ ${g.startCol} ถึง ${g.endCol}`;
 
@@ -3386,7 +3387,6 @@ body{
       const zoneButtons = document.createElement('div');
       zoneButtons.className = 'mobile-zone-buttons';
 
-
       [
         ['S', 'ฝั่งใต้', 'S'],
         ['MID', 'หน้าตึก', 'MID'],
@@ -3428,7 +3428,7 @@ body{
         btn.addEventListener('click', () => {
           if (selectedBlocks.has(block.key)) {
             if (selectedBlocks.size === 1) {
-              setStatus('ต้องเลือกอย่างน้อย 1 บล็อก', 'err');
+              alert('ต้องเลือกอย่างน้อย 1 บล็อก');
               return;
             }
             selectedBlocks.delete(block.key);
@@ -3526,7 +3526,7 @@ body{
             c <= (block.maxColLimit || config.maxCols)
           );
           if (!eligibleBlocks.length) {
-            setStatus('กรุณาเลือกอย่างน้อย 1 บล็อกก่อนจิ้มคอลัมน์', 'err');
+            alert('กรุณาเลือกอย่างน้อย 1 บล็อกก่อนจิ้มคอลัมน์');
             return;
           }
           const allSame = eligibleBlocks.every(block => getSurveyColumnState(zone, block.key, c) === selectedSurveyMode);
@@ -3609,6 +3609,16 @@ body{
       try {
         const data = await DB.loadAll();
 
+        // โหลดข้อมูลโหมดสำรวจ (Custom Survey Modes) จาก Google Sheets
+        if (Array.isArray(data.customModes)) {
+          data.customModes.forEach(m => {
+            if (m.key && m.label) {
+              const meta = buildCustomSurveyMeta(m.label, m.colorIndex);
+              customSurveyModes[m.key] = meta;
+            }
+          });
+        }
+
         ['S','MID','N'].forEach(z => surveyColumnState[z] = {});
         (data.surveys || []).forEach(item => {
           if (!surveyColumnState[item.zone]) surveyColumnState[item.zone] = {};
@@ -3616,7 +3626,9 @@ body{
             surveyColumnState[item.zone][item.blockKey] = {};
           }
           const loadedMode = item.mode || '';
-          if (loadedMode && !surveyModeMeta[loadedMode]) registerCustomSurveyMode(loadedMode);
+          if (loadedMode && !surveyModeMeta[loadedMode] && !customSurveyModes[loadedMode]) {
+            registerCustomSurveyMode(loadedMode);
+          }
           surveyColumnState[item.zone][item.blockKey][Number(item.colNum)] = loadedMode;
         });
 
@@ -3641,7 +3653,7 @@ body{
       } catch (err) {
         console.error(err);
         ['S','MID','N'].forEach(z => DB.status(z, '⚠ โหลดข้อมูลไม่สำเร็จ', 'err'));
-        alert('ไม่สามารถเชื่อมต่อ Google Sheets ได้\\n\\n' + (err.message || err));
+        alert('ไม่สามารถเชื่อมต่อ Google Sheets ได้\n\n' + (err.message || err));
       }
     }
 
