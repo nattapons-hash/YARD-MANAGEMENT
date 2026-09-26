@@ -2079,10 +2079,10 @@ body{
 
       const oldColorIndex = customSurveyModes[mode].colorIndex;
       delete customSurveyModes[mode];
-      DB.deleteCustomMode(mode); // ลบโหมดชื่อเดิมในระบบ DB
+      DB.deleteCustomMode(mode);
 
       customSurveyModes[newKey] = buildCustomSurveyMeta(clean, oldColorIndex);
-      DB.saveCustomMode(newKey, clean, oldColorIndex); // บันทึกโหมดชื่อใหม่ลง DB
+      DB.saveCustomMode(newKey, clean, oldColorIndex);
 
       const saves = Object.keys(changesByZone)
         .filter(zone => changesByZone[zone].length)
@@ -2138,7 +2138,7 @@ body{
       await Promise.allSettled(clearPromises);
 
       delete customSurveyModes[mode];
-      DB.deleteCustomMode(mode); // ลบโหมดออกจาก DB
+      DB.deleteCustomMode(mode);
 
       if (selectedSurveyMode === mode) selectedSurveyMode = 'empty';
       renderAllYardWindows();
@@ -3609,7 +3609,6 @@ body{
       try {
         const data = await DB.loadAll();
 
-        // โหลดข้อมูลโหมดสำรวจ (Custom Survey Modes) จาก Google Sheets
         if (Array.isArray(data.customModes)) {
           data.customModes.forEach(m => {
             if (m.key && m.label) {
